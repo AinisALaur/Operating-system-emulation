@@ -4,8 +4,8 @@ on:
   pull_request:
 
 jobs:
-  build:
 
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
