@@ -25,6 +25,14 @@
                         <googleJavaFormat/>
                     </java>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>apply</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
