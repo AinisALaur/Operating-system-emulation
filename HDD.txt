@@ -1,0 +1,15 @@
+----
+abcd
+$RJG
+uzd1
+SUBX
+MOVY
+ADDZ
+$END
+$RJG
+uzd2
+SUBX
+MOVY
+ADDZ
+$END
+----
