@@ -10,7 +10,7 @@ public class RAM {
   int userDataPointer = 0;
   int supervisorDataPointer = Config.supervisor_first_block * Config.block_size;
 
-  // initialize the array with empty values
+  // initialize the array with empty values, currently only used for data printing
   public RAM() {
     for (int i = 0; i < Config.ram_size * Config.ram_word_size; ++i) {
       ramContent[i] = '\0';
@@ -26,6 +26,7 @@ public class RAM {
     return pointer;
   }
 
+  // Only used for printing to test the data
   public ArrayList<String> getValidData() {
     ArrayList<String> result = new ArrayList<>();
     for (int i = 0; i < Config.ram_size * Config.ram_word_size; ++i) {
@@ -51,18 +52,33 @@ public class RAM {
     return result;
   }
 
-  // Read data from file and insert it to memory array by mode (user or supervisor)
-  // Currently returns for testing purposes
-  public ArrayList<String> loadData(String HDD, char[] mode) {
+  // Currently reads the HDD.txt file, finds the fileName (set inside ChannelDevice's FN flag),
+  // loads all the commands to supervisor memory
+  public ArrayList<String> loadData(String HDD, CPU cpu) {
     File myHdd = new File(HDD);
     try (Scanner myReader = new Scanner(myHdd)) {
+      String prev = "";
+      boolean storeToSupervisor = false;
       while (myReader.hasNextLine()) {
         String data = myReader.nextLine();
-        if (mode[0] == 0) {
-          userDataPointer = insertToArray(data, userDataPointer);
-        } else {
+        // TODO: parsing logic:
+        // 1. We need to find the fileName
+        // 2. Upload all of its contents to supervisor memory
+        // 3. Add checks and update flags accordingly
+
+        if (data.equals("----") && storeToSupervisor) {
+          break;
+        }
+
+        if (storeToSupervisor) {
           supervisorDataPointer = insertToArray(data, supervisorDataPointer);
         }
+
+        // We found the file name, and we need to start loading all
+        // the data to supervisor memory
+        if (prev.equals("----") && data.equals(cpu.getFileName())) storeToSupervisor = true;
+
+        prev = data;
       }
     } catch (FileNotFoundException e) {
       System.out.println("Couldn't read the file");

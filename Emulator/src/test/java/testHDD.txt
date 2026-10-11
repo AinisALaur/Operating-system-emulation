@@ -1,3 +1,9 @@
-ADDX
-SUBY
-MOVZ
+----
+abcd
+$RJG
+uzd1
+SUBX
+MOVY
+ADDZ
+$END
+----

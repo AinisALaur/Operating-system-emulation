@@ -1,8 +1,11 @@
 package org.example;
 
+import java.util.ArrayList;
+
 public class CPU {
   private RAM ram;
   private String HDD;
+  ChannelDevice channelDevice;
 
   // Will inicialize fields, when we know their default values
   private char[] r0 = new char[4];
@@ -18,9 +21,30 @@ public class CPU {
   public CPU(RAM ram, String HDD) {
     this.ram = ram;
     this.HDD = HDD;
+    channelDevice = new ChannelDevice();
   }
 
-  public void loadDataToRam() {
-    ram.loadData(HDD, mode);
+  public void halt() {
+    si[0] = 3;
+  }
+
+  public char getSI() {
+    return si[0];
+  }
+
+  public char getMODE() {
+    return mode[0];
+  }
+
+  public void setFileName(String fileName) {
+    channelDevice.setFn(fileName);
+  }
+
+  public String getFileName() {
+    return channelDevice.getFn();
+  }
+
+  public ArrayList<String> loadDataToRam() {
+    return ram.loadData(HDD, this);
   }
 }
