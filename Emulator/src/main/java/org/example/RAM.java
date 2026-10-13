@@ -6,18 +6,17 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class RAM {
-  public char[] ramContent = new char[Config.ram_size * Config.ram_word_size];
-  int userDataPointer = 0;
-  int supervisorDataPointer = Config.supervisor_first_block * Config.block_size;
+  public char[] ramContent =
+      new char[Config.block_size * Config.ram_word_size * Config.block_amount];
 
   // initialize the array with empty values, currently only used for data printing
   public RAM() {
     for (int i = 0; i < Config.ram_size * Config.ram_word_size; ++i) {
-      ramContent[i] = '\0';
+      ramContent[i] = ' ';
     }
   }
 
-  private int insertToArray(String data, int pointer) {
+  private int insertToRam(String data, int pointer) {
     data = data.trim();
     for (int i = 0; i < data.length(); ++i) {
       ramContent[pointer] = data.charAt(i);
@@ -29,14 +28,17 @@ public class RAM {
   // Only used for printing to test the data
   public ArrayList<String> getValidData() {
     ArrayList<String> result = new ArrayList<>();
-    for (int i = 0; i < Config.ram_size * Config.ram_word_size; ++i) {
-      int block = i / Config.block_size;
-      int word = i % Config.block_size / 4;
 
-      // each block has 16 words, but we're saving data in one continuous array so we need to
-      // extract each 4 letter long words
-      // TODO: print block and word in HEX (0 - F)
-      if (ramContent[i] != '\0') {
+    int charsPerWord = 4;
+    int wordsPerBlock = 16;
+    int charsPerBlock = wordsPerBlock * charsPerWord;
+    int totalChars = 67 * charsPerBlock;
+
+    for (int i = 0; i < totalChars; i += charsPerWord) {
+      int block = i / charsPerBlock;
+      int word = (i % charsPerBlock) / charsPerWord;
+
+      if (ramContent[i] != ' ') {
         result.add(
             block
                 + " "
@@ -46,37 +48,40 @@ public class RAM {
                 + ramContent[i + 1]
                 + ramContent[i + 2]
                 + ramContent[i + 3]);
-        i += 3;
       }
     }
+
     return result;
   }
 
-  // Currently reads the HDD.txt file, finds the fileName (set inside ChannelDevice's FN flag),
-  // loads all the commands to supervisor memory
-  public ArrayList<String> loadData(String HDD, CPU cpu) {
-    File myHdd = new File(HDD);
+  // TODO: add guards
+  public void loadToSupervisor(String hdd, CPU cpu) {
+    int pointer = Config.supervisor_first_block * Config.block_size * Config.ram_word_size;
+    boolean foundFile = false;
+    boolean foundStart = false;
+    String fileName = cpu.getFileName();
+    File myHdd = new File(hdd);
+    String prev = "";
     try (Scanner myReader = new Scanner(myHdd)) {
-      String prev = "";
-      boolean storeToSupervisor = false;
       while (myReader.hasNextLine()) {
         String data = myReader.nextLine();
-        // TODO: parsing logic:
-        // 1. We need to find the fileName
-        // 2. Upload all of its contents to supervisor memory
-        // 3. Add checks and update flags accordingly
 
-        if (data.equals("----") && storeToSupervisor) {
+        if (data.equals(Config.file_end)) {
           break;
         }
 
-        if (storeToSupervisor) {
-          supervisorDataPointer = insertToArray(data, supervisorDataPointer);
+        if (data.equals(fileName) && prev.equals("----")) {
+          foundFile = true;
         }
 
-        // We found the file name, and we need to start loading all
-        // the data to supervisor memory
-        if (prev.equals("----") && data.equals(cpu.getFileName())) storeToSupervisor = true;
+        if (foundFile && data.equals(Config.file_start)) {
+          foundStart = true;
+          continue;
+        }
+
+        if (foundStart) {
+          pointer = insertToRam(data, pointer);
+        }
 
         prev = data;
       }
@@ -84,6 +89,49 @@ public class RAM {
       System.out.println("Couldn't read the file");
       e.printStackTrace();
     }
+  }
+
+  private void fillPtrTable(int vm, CPU cpu) {
+    int start = 0;
+    switch (vm) {
+      case 2:
+        start = 1;
+        break;
+      case 3:
+        start = 2;
+        break;
+    }
+
+    char[] ptr = cpu.getPTR();
+    int pointer = ((ptr[0] - '0') * 16 + ptr[1] - '0') * 16 * 4;
+    for (int i = 0; i < Config.block_size; ++i) {
+      String hex = Integer.toHexString(start);
+      for (int x = 0; x < hex.length(); ++x) {
+        ramContent[pointer] = hex.charAt(x);
+        pointer += 1;
+      }
+      pointer += (Config.ram_word_size - hex.length());
+      start += 3;
+    }
+  }
+
+  // VM1 gets every third block starting from 0, VM1 gets every third starting from 1, VM3 gets
+  // every third starting from 2
+  // this function currently only loads to the first VM'S blocks
+  public void loadToUser(CPU cpu) {}
+
+  // Currently reads the HDD.txt file, finds the fileName (set inside ChannelDevice's FN flag),
+  // loads all the commands to supervisor memory
+  public ArrayList<String> loadData(String hdd, CPU cpu) {
+    if (cpu.getMODE() == 1) {
+      loadToSupervisor(hdd, cpu);
+      cpu.setMODE('0');
+      loadData(hdd, cpu);
+    } else {
+      cpu.setPTR(1);
+      fillPtrTable(1, cpu);
+    }
+
     return getValidData();
   }
 }
