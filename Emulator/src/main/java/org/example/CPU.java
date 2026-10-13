@@ -36,6 +36,32 @@ public class CPU {
     return mode[0];
   }
 
+  public void setMODE(char mode) {
+    this.mode[0] = mode;
+  }
+
+  // Saved as hex
+  public void setPTR(int vmNum) {
+    switch (vmNum) {
+      case 1:
+        ptr[0] = '3';
+        ptr[1] = '0';
+        break;
+      case 2:
+        ptr[0] = '3';
+        ptr[1] = '1';
+        break;
+      case 3:
+        ptr[0] = '3';
+        ptr[1] = '2';
+        break;
+    }
+  }
+
+  public char[] getPTR() {
+    return ptr;
+  }
+
   public void setFileName(String fileName) {
     channelDevice.setFn(fileName);
   }
