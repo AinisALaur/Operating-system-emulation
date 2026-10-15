@@ -1,12 +1,14 @@
 package org.example;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class RM {
-  String HDD = Config.outer_disk_file_name;
-  RAM ram = new RAM();
-  CPU cpu = new CPU(ram, HDD);
+  private static String HDD = Config.outer_disk_file_name;
+  private RAM ram = RAM.getInstance();
+  private CPU cpu = CPU.getInstance();
+  private ChannelDevice channelDevice = ChannelDevice.getInstance();
+  private Boolean on = true;
+
   private static RM instance = null;
 
   private RM() {}
@@ -18,22 +20,39 @@ public class RM {
     return instance;
   }
 
+  public static String geHDD() {
+    return HDD;
+  }
+
   private int getUserOption(String[] options) {
     Scanner scanner = new Scanner(System.in);
     for (String option : options) {
       System.out.println(option);
     }
-    System.out.print("Enter your option: ");
-    return scanner.nextInt();
+    while (true) {
+      System.out.print("Enter your option: ");
+      if (scanner.hasNextInt()) {
+        int choice = scanner.nextInt();
+        if (choice >= 1 && choice <= options.length) {
+          return choice;
+        }
+      } else {
+        scanner.next();
+      }
+      System.out.println("Invalid option, try again.");
+    }
   }
 
-  public boolean test() {
-    if (cpu.getSI() != 3) return true;
-    return false;
+  public int getVmPointer(int pointer, int vm) {
+    return RAM.getInstance().getPointerFromPTR(pointer, vm);
+  }
+
+  public String getWord(int block, int word) {
+    return ram.getWord(block, word);
   }
 
   // TODO: add guards
-  public void getMenu() {
+  public VM getMenu() {
     String[] mainOptions = {"1. Choose file", "2. Quit"};
     Scanner scanner = new Scanner(System.in);
 
@@ -42,17 +61,24 @@ public class RM {
       case 1:
         System.out.print("Enter file name: ");
         String fileName = scanner.nextLine();
-        cpu.setFileName(fileName);
-        ArrayList<String> res = cpu.loadDataToRam();
+        while (fileName.length() > Config.ram_word_size) {
+          System.out.print(
+              "File name's length must be <= " + Config.ram_word_size + " characters, try again: ");
+          fileName = scanner.nextLine();
+        }
 
-        //        for (String r : res) {
-        //          System.out.println(r);
-        //        }
-
+        channelDevice.setFN(fileName);
+        ram.loadToSupervisor();
         break;
       case 2:
-        cpu.halt();
+        this.on = false;
         break;
     }
+
+    return new VM(0);
+  }
+
+  public void loadUserData(int vm) {
+    ram.loadData(vm);
   }
 }
