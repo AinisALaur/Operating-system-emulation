@@ -7,6 +7,16 @@ public class RM {
   String HDD = Config.outer_disk_file_name;
   RAM ram = new RAM();
   CPU cpu = new CPU(ram, HDD);
+  private static RM instance = null;
+
+  private RM() {}
+
+  public static RM getInstance(){
+    if(instance == null){
+      instance = new RM();
+    }
+    return instance;
+  }
 
   private int getUserOption(String[] options) {
     Scanner scanner = new Scanner(System.in);
@@ -35,9 +45,9 @@ public class RM {
         cpu.setFileName(fileName);
         ArrayList<String> res = cpu.loadDataToRam();
 
-        for (String r : res) {
-          System.out.println(r);
-        }
+//        for (String r : res) {
+//          System.out.println(r);
+//        }
 
         break;
       case 2:
