@@ -9,14 +9,22 @@ public class ChannelDevice {
   private char[] st = new char[1];
   private char[] dt = new char[1];
 
-  // TODO: Check filename length
-  public void setFn(String fileName) {
+  private static ChannelDevice instance;
+
+  public static ChannelDevice getInstance() {
+    if (instance == null) {
+      instance = new ChannelDevice();
+    }
+    return instance;
+  }
+
+  public void setFN(String fileName) {
     for (int i = 0; i < fileName.length(); ++i) {
       fn[i] = fileName.charAt(i);
     }
   }
 
-  public String getFn() {
+  public String getFN() {
     return "" + fn[0] + fn[1] + fn[2] + fn[3];
   }
 }

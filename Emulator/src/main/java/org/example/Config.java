@@ -12,4 +12,5 @@ public class Config {
   public static final String file_start = "$RJG";
   public static final String file_end = "$END";
   public static final int code_segment_start = 320;
+  public static final int VM_ram_size = 1024;
 }

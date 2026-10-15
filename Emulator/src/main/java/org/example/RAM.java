@@ -2,18 +2,32 @@ package org.example;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class RAM {
-  public char[] ramContent =
+  private static char[] ramContent =
       new char[Config.block_size * Config.ram_word_size * Config.block_amount];
+  private static RAM instance = null;
 
-  // initialize the array with empty values, currently only used for data printing
-  public RAM() {
-    for (int i = 0; i < Config.ram_size * Config.ram_word_size; ++i) {
-      ramContent[i] = ' ';
+  private RAM() {}
+
+  public static RAM getInstance() {
+    if (instance == null) {
+      instance = new RAM();
+      for (int i = 0; i < Config.ram_size * Config.ram_word_size; ++i) {
+        ramContent[i] = ' ';
+      }
     }
+    return instance;
+  }
+
+  public String getWord(int block, int word) {
+    int pointer = block * Config.block_size * Config.ram_word_size + word * Config.ram_word_size;
+    return ""
+        + ramContent[pointer]
+        + ramContent[pointer + 1]
+        + ramContent[pointer + 2]
+        + ramContent[pointer + 3];
   }
 
   public int getPointerFromPTR(int pointer, int vm) {
@@ -54,9 +68,7 @@ public class RAM {
   }
 
   // Only used for printing to test the data
-  public ArrayList<String> getValidData() {
-    ArrayList<String> result = new ArrayList<>();
-
+  public void printValidData() {
     int charsPerWord = 4;
     int wordsPerBlock = 16;
     int charsPerBlock = wordsPerBlock * charsPerWord;
@@ -67,10 +79,10 @@ public class RAM {
       int word = (i % charsPerBlock) / charsPerWord;
 
       if (ramContent[i] != ' ') {
-        result.add(
-            block
+        System.out.println(
+            Mapper.toHex(block)
                 + " "
-                + word
+                + Mapper.toHex(word)
                 + " "
                 + ramContent[i]
                 + ramContent[i + 1]
@@ -78,18 +90,19 @@ public class RAM {
                 + ramContent[i + 3]);
       }
     }
-
-    return result;
   }
 
   // TODO: add guards
-  public void loadToSupervisor(String hdd, CPU cpu) {
+  public void loadToSupervisor() {
+    String hdd = RM.geHDD();
+    String fileName = ChannelDevice.getInstance().getFN();
+
     int pointer = Config.supervisor_first_block * Config.block_size * Config.ram_word_size;
     boolean foundFile = false;
     boolean foundStart = false;
-    String fileName = cpu.getFileName();
     File myHdd = new File(hdd);
     String prev = "";
+
     try (Scanner myReader = new Scanner(myHdd)) {
       while (myReader.hasNextLine()) {
         String data = myReader.nextLine();
@@ -119,21 +132,21 @@ public class RAM {
     }
   }
 
-  private void fillPtrTable(int vm, CPU cpu) {
+  private void fillPtrTable(int vm) {
     int start = 0;
     switch (vm) {
-      case 2:
+      case 1:
         start = 1;
         break;
-      case 3:
+      case 2:
         start = 2;
         break;
     }
 
-    char[] ptr = cpu.getPTR();
-    int pointer = ((ptr[0] - '0') * 16 + ptr[1] - '0') * 16 * 4;
+    char[] ptr = CPU.getInstance().getPTR();
+    int pointer = Mapper.toInt("" + ptr[0] + ptr[1]) * Config.block_size * Config.ram_word_size;
     for (int i = 0; i < Config.block_size; ++i) {
-      String hex = Integer.toHexString(start);
+      String hex = Mapper.toHex(start);
       for (int x = 0; x < hex.length(); ++x) {
         ramContent[pointer] = hex.charAt(x);
         pointer += 1;
@@ -146,33 +159,32 @@ public class RAM {
   // VM1 gets every third block starting from 0, VM1 gets every third starting from 1, VM3 gets
   // every third starting from 2
   // this function currently only loads to the first VM'S blocks
-  public void loadToUser(CPU cpu) {
+  public void loadToUser(int vm) {
     int supervisorPointer =
         Config.supervisor_first_block * Config.block_size * Config.ram_word_size;
-    int user = Config.code_segment_start; // the beggining of the code segment on vm = 0
+    int user = Config.code_segment_start; // points to 5 0
     while (supervisorPointer < Config.ram_size * Config.ram_word_size
         && ramContent[supervisorPointer] != ' ') {
-      int userDataPointer = getPointerFromPTR(user, 0);
-
+      int userDataPointer = getPointerFromPTR(user, vm);
       String command =
           ""
               + ramContent[supervisorPointer]
               + ramContent[supervisorPointer + 1]
               + ramContent[supervisorPointer + 2]
               + ramContent[supervisorPointer + 3];
-      int block = userDataPointer / (16 * 4);
-      int word = userDataPointer % (16 * 4) / 4;
+      //      int block = userDataPointer / (16 * 4);
+      //      int word = userDataPointer % (16 * 4) / 4;
 
-      System.out.println(block + " " + word + " " + command);
-      //      ramContent[supervisorPointer] = ' ';
-      //      ramContent[supervisorPointer + 1] = ' ';
-      //      ramContent[supervisorPointer + 2] = ' ';
-      //      ramContent[supervisorPointer + 3] = ' ';
-      //
-      //      ramContent[userDataPointer] = command.charAt(0);
-      //      ramContent[userDataPointer + 1] = command.charAt(0);
-      //      ramContent[userDataPointer + 2] = command.charAt(0);
-      //      ramContent[userDataPointer + 3] = command.charAt(0);
+      //      System.out.println(block + " " + word + " " + command);
+      ramContent[supervisorPointer] = ' ';
+      ramContent[supervisorPointer + 1] = ' ';
+      ramContent[supervisorPointer + 2] = ' ';
+      ramContent[supervisorPointer + 3] = ' ';
+
+      ramContent[userDataPointer] = command.charAt(0);
+      ramContent[userDataPointer + 1] = command.charAt(1);
+      ramContent[userDataPointer + 2] = command.charAt(2);
+      ramContent[userDataPointer + 3] = command.charAt(3);
       user += 4;
       supervisorPointer += 4;
     }
@@ -180,17 +192,10 @@ public class RAM {
 
   // Currently reads the HDD.txt file, finds the fileName (set inside ChannelDevice's FN flag),
   // loads all the commands to supervisor memory
-  public ArrayList<String> loadData(String hdd, CPU cpu) {
-    if (cpu.getMODE() == 1) {
-      loadToSupervisor(hdd, cpu);
-      cpu.setMODE('0');
-      loadData(hdd, cpu);
-    } else {
-      cpu.setPTR(1);
-      fillPtrTable(1, cpu);
-      loadToUser(cpu);
-    }
-
-    return getValidData();
+  public void loadData(int vm) {
+    CPU cpu = CPU.getInstance();
+    cpu.setPTR(vm);
+    fillPtrTable(vm);
+    loadToUser(vm);
   }
 }
