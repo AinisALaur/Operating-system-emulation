@@ -16,13 +16,13 @@ public class RAM {
     }
   }
 
-  public int getPointerFromPTR(int pointer, int vm){
+  public int getPointerFromPTR(int pointer, int vm) {
     int block = pointer / (Config.ram_word_size * Config.block_size);
     int word = pointer % (Config.ram_word_size * Config.block_size);
 
     int start = Config.block_size * Config.ram_word_size;
     // decides where the ptr table is
-    switch (vm){
+    switch (vm) {
       case 0:
         start *= 48;
         break;
@@ -33,7 +33,15 @@ public class RAM {
         start *= 40;
         break;
     }
-    return Mapper.toInt("" + ramContent[start + block * 4] + ramContent[start + block * 4 + 1] + ramContent[start + block * 4 + 2] + ramContent[start + block * 4 + 3]) * 16 * 4 + word;
+    return Mapper.toInt(
+                ""
+                    + ramContent[start + block * 4]
+                    + ramContent[start + block * 4 + 1]
+                    + ramContent[start + block * 4 + 2]
+                    + ramContent[start + block * 4 + 3])
+            * 16
+            * 4
+        + word;
   }
 
   private int insertToRam(String data, int pointer) {
@@ -139,25 +147,32 @@ public class RAM {
   // every third starting from 2
   // this function currently only loads to the first VM'S blocks
   public void loadToUser(CPU cpu) {
-    int supervisorPointer = Config.supervisor_first_block * Config.block_size * Config.ram_word_size;
+    int supervisorPointer =
+        Config.supervisor_first_block * Config.block_size * Config.ram_word_size;
     int user = Config.code_segment_start; // the beggining of the code segment on vm = 0
-    while (supervisorPointer < Config.ram_size * Config.ram_word_size && ramContent[supervisorPointer] != ' '){
+    while (supervisorPointer < Config.ram_size * Config.ram_word_size
+        && ramContent[supervisorPointer] != ' ') {
       int userDataPointer = getPointerFromPTR(user, 0);
 
-      String command = "" + ramContent[supervisorPointer] + ramContent[supervisorPointer + 1] + ramContent[supervisorPointer + 2] + ramContent[supervisorPointer + 3];
+      String command =
+          ""
+              + ramContent[supervisorPointer]
+              + ramContent[supervisorPointer + 1]
+              + ramContent[supervisorPointer + 2]
+              + ramContent[supervisorPointer + 3];
       int block = userDataPointer / (16 * 4);
       int word = userDataPointer % (16 * 4) / 4;
 
       System.out.println(block + " " + word + " " + command);
-//      ramContent[supervisorPointer] = ' ';
-//      ramContent[supervisorPointer + 1] = ' ';
-//      ramContent[supervisorPointer + 2] = ' ';
-//      ramContent[supervisorPointer + 3] = ' ';
-//
-//      ramContent[userDataPointer] = command.charAt(0);
-//      ramContent[userDataPointer + 1] = command.charAt(0);
-//      ramContent[userDataPointer + 2] = command.charAt(0);
-//      ramContent[userDataPointer + 3] = command.charAt(0);
+      //      ramContent[supervisorPointer] = ' ';
+      //      ramContent[supervisorPointer + 1] = ' ';
+      //      ramContent[supervisorPointer + 2] = ' ';
+      //      ramContent[supervisorPointer + 3] = ' ';
+      //
+      //      ramContent[userDataPointer] = command.charAt(0);
+      //      ramContent[userDataPointer + 1] = command.charAt(0);
+      //      ramContent[userDataPointer + 2] = command.charAt(0);
+      //      ramContent[userDataPointer + 3] = command.charAt(0);
       user += 4;
       supervisorPointer += 4;
     }

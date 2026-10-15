@@ -1,11 +1,11 @@
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.example.Mapper;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 public class MapperTest {
   @Test
-  void testMapperToInt(){
+  void testMapperToInt() {
     assertTrue(Mapper.toInt("0") == 0);
     assertTrue(Mapper.toInt("1") == 1);
     assertTrue(Mapper.toInt("2") == 2);
@@ -27,7 +27,7 @@ public class MapperTest {
   }
 
   @Test
-  void testMapperToHex(){
+  void testMapperToHex() {
     assertTrue(Mapper.toHex(0).equals("0"));
     assertTrue(Mapper.toHex(1).equals("1"));
     assertTrue(Mapper.toHex(2).equals("2"));
@@ -47,5 +47,4 @@ public class MapperTest {
     assertTrue(Mapper.toHex(255).equals("FF"));
     assertTrue(Mapper.toHex(67).equals("43"));
   }
-
 }

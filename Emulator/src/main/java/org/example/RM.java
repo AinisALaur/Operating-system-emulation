@@ -11,8 +11,8 @@ public class RM {
 
   private RM() {}
 
-  public static RM getInstance(){
-    if(instance == null){
+  public static RM getInstance() {
+    if (instance == null) {
       instance = new RM();
     }
     return instance;
@@ -45,9 +45,9 @@ public class RM {
         cpu.setFileName(fileName);
         ArrayList<String> res = cpu.loadDataToRam();
 
-//        for (String r : res) {
-//          System.out.println(r);
-//        }
+        //        for (String r : res) {
+        //          System.out.println(r);
+        //        }
 
         break;
       case 2:
