@@ -11,4 +11,5 @@ public class Config {
   public static final String outer_disk_file_name = "../HDD.txt";
   public static final String file_start = "$RJG";
   public static final String file_end = "$END";
+  public static final int code_segment_start = 320;
 }
