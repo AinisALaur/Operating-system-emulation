@@ -16,6 +16,34 @@ public class RAM {
     }
   }
 
+  public int getPointerFromPTR(int pointer, int vm) {
+    int block = pointer / (Config.ram_word_size * Config.block_size);
+    int word = pointer % (Config.ram_word_size * Config.block_size);
+
+    int start = Config.block_size * Config.ram_word_size;
+    // decides where the ptr table is
+    switch (vm) {
+      case 0:
+        start *= 48;
+        break;
+      case 1:
+        start *= 49;
+        break;
+      case 2:
+        start *= 40;
+        break;
+    }
+    return Mapper.toInt(
+                ""
+                    + ramContent[start + block * 4]
+                    + ramContent[start + block * 4 + 1]
+                    + ramContent[start + block * 4 + 2]
+                    + ramContent[start + block * 4 + 3])
+            * 16
+            * 4
+        + word;
+  }
+
   private int insertToRam(String data, int pointer) {
     data = data.trim();
     for (int i = 0; i < data.length(); ++i) {
@@ -118,7 +146,37 @@ public class RAM {
   // VM1 gets every third block starting from 0, VM1 gets every third starting from 1, VM3 gets
   // every third starting from 2
   // this function currently only loads to the first VM'S blocks
-  public void loadToUser(CPU cpu) {}
+  public void loadToUser(CPU cpu) {
+    int supervisorPointer =
+        Config.supervisor_first_block * Config.block_size * Config.ram_word_size;
+    int user = Config.code_segment_start; // the beggining of the code segment on vm = 0
+    while (supervisorPointer < Config.ram_size * Config.ram_word_size
+        && ramContent[supervisorPointer] != ' ') {
+      int userDataPointer = getPointerFromPTR(user, 0);
+
+      String command =
+          ""
+              + ramContent[supervisorPointer]
+              + ramContent[supervisorPointer + 1]
+              + ramContent[supervisorPointer + 2]
+              + ramContent[supervisorPointer + 3];
+      int block = userDataPointer / (16 * 4);
+      int word = userDataPointer % (16 * 4) / 4;
+
+      System.out.println(block + " " + word + " " + command);
+      //      ramContent[supervisorPointer] = ' ';
+      //      ramContent[supervisorPointer + 1] = ' ';
+      //      ramContent[supervisorPointer + 2] = ' ';
+      //      ramContent[supervisorPointer + 3] = ' ';
+      //
+      //      ramContent[userDataPointer] = command.charAt(0);
+      //      ramContent[userDataPointer + 1] = command.charAt(0);
+      //      ramContent[userDataPointer + 2] = command.charAt(0);
+      //      ramContent[userDataPointer + 3] = command.charAt(0);
+      user += 4;
+      supervisorPointer += 4;
+    }
+  }
 
   // Currently reads the HDD.txt file, finds the fileName (set inside ChannelDevice's FN flag),
   // loads all the commands to supervisor memory
@@ -130,6 +188,7 @@ public class RAM {
     } else {
       cpu.setPTR(1);
       fillPtrTable(1, cpu);
+      loadToUser(cpu);
     }
 
     return getValidData();
