@@ -1,9 +1,11 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
 import org.example.CPU;
 import org.example.ChannelDevice;
+import org.example.Config;
 import org.example.RAM;
 import org.example.RM;
 import org.example.VM;
@@ -82,5 +84,89 @@ public class VMTest {
     for (int word = 0; word < 3; ++word) {
       assertEquals("    ", RM.getInstance().getWord(51, word));
     }
+  }
+
+  @Test
+  void testMemoryRejectsOutOfBoundsAddresses() {
+    RAM ram = RAM.getInstance();
+
+    assertThrows(IndexOutOfBoundsException.class, () -> ram.getWord(-1, 0));
+    assertThrows(IndexOutOfBoundsException.class, () -> ram.getWord(Config.block_amount, 0));
+    assertThrows(IndexOutOfBoundsException.class, () -> ram.getWord(0, -1));
+    assertThrows(IndexOutOfBoundsException.class, () -> ram.getWord(0, Config.block_size));
+    assertThrows(IndexOutOfBoundsException.class, () -> ram.getPointerFromPTR(-1, 0));
+    assertThrows(
+        IndexOutOfBoundsException.class, () -> ram.getPointerFromPTR(Config.VM_ram_size, 0));
+    assertThrows(IndexOutOfBoundsException.class, () -> ram.getPointerFromPTR(0, -1));
+    assertThrows(IndexOutOfBoundsException.class, () -> ram.getPointerFromPTR(0, Config.VM_amount));
+  }
+
+  @Test
+  void testVmRejectsOutOfBoundsNumbers() {
+    assertThrows(IllegalArgumentException.class, () -> new VM(-1));
+    assertThrows(IllegalArgumentException.class, () -> new VM(Config.VM_amount));
+  }
+
+  @Test
+  void testRealMachineLimitsCreatedVmCount() {
+    loadFileToSupervisor("abcd");
+    RM rm = RM.getInstance();
+
+    for (int i = 0; i < Config.VM_amount; ++i) {
+      rm.createVM();
+    }
+
+    assertThrows(IllegalStateException.class, rm::createVM);
+  }
+
+  @Test
+  void testClearRegistersClearsCpuRegisters() {
+    RM rm = RM.getInstance();
+    CPU cpu = CPU.getInstance();
+    rm.setPI('3');
+    rm.setSI('3');
+    rm.setIP(new char[] {'F', 'F'});
+    cpu.setMODE('0');
+
+    rm.clearRegisters();
+
+    assertEquals('0', rm.getPI());
+    assertEquals('0', rm.getSI());
+    assertEquals("  ", new String(rm.getIP()));
+    assertEquals('1', cpu.getMODE());
+    assertEquals('F', rm.getTI());
+  }
+
+  @Test
+  void testCpuRejectsOutOfBoundsRegisterValues() {
+    CPU cpu = CPU.getInstance();
+
+    assertThrows(IllegalArgumentException.class, () -> cpu.setMODE('2'));
+    assertThrows(IllegalArgumentException.class, () -> cpu.setPI('4'));
+    assertThrows(IllegalArgumentException.class, () -> cpu.setSI('/'));
+
+    cpu.setIP(new char[] {'0'});
+    assertEquals('1', cpu.getPI());
+  }
+
+  @Test
+  void testVmTwoUsesItsOwnMappedBlocks() {
+    loadFileToSupervisor("abcd");
+
+    new VM(2).loadDataToMemory();
+
+    assertEquals("SUBX", RM.getInstance().getWord(17, 0));
+  }
+
+  @Test
+  void testChannelDeviceRejectsInvalidFileNameLengths() {
+    ChannelDevice channelDevice = ChannelDevice.getInstance();
+
+    assertThrows(IllegalArgumentException.class, () -> channelDevice.setFN(null));
+    assertThrows(IllegalArgumentException.class, () -> channelDevice.setFN(""));
+    assertThrows(IllegalArgumentException.class, () -> channelDevice.setFN("abcde"));
+
+    channelDevice.setFN("a");
+    assertEquals("a", channelDevice.getFN());
   }
 }

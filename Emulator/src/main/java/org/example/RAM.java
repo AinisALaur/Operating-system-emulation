@@ -22,6 +22,12 @@ public class RAM {
   }
 
   public String getWord(int block, int word) {
+    validateBlock(block);
+    if (word < 0 || word >= Config.block_size) {
+      throw new IndexOutOfBoundsException(
+          "Word must be between 0 and " + (Config.block_size - 1) + ": " + word);
+    }
+
     int pointer = block * Config.block_size * Config.ram_word_size + word * Config.ram_word_size;
     return ""
         + ramContent[pointer]
@@ -31,6 +37,12 @@ public class RAM {
   }
 
   public int getPointerFromPTR(int pointer, int vm) {
+    validateVm(vm);
+    if (pointer < 0 || pointer >= Config.VM_ram_size) {
+      throw new IndexOutOfBoundsException(
+          "VM pointer must be between 0 and " + (Config.VM_ram_size - 1) + ": " + pointer);
+    }
+
     int block = pointer / (Config.ram_word_size * Config.block_size);
     int word = pointer % (Config.ram_word_size * Config.block_size);
 
@@ -44,22 +56,30 @@ public class RAM {
         start *= 49;
         break;
       case 2:
-        start *= 40;
+        start *= 50;
         break;
     }
-    return Mapper.toInt(
-                ""
-                    + ramContent[start + block * Config.ram_word_size]
-                    + ramContent[start + block * Config.ram_word_size + 1]
-                    + ramContent[start + block * Config.ram_word_size + 2]
-                    + ramContent[start + block * Config.ram_word_size + 3])
-            * Config.block_size
-            * Config.ram_word_size
-        + word;
+    String mappedBlock =
+        ""
+            + ramContent[start + block * Config.ram_word_size]
+            + ramContent[start + block * Config.ram_word_size + 1]
+            + ramContent[start + block * Config.ram_word_size + 2]
+            + ramContent[start + block * Config.ram_word_size + 3];
+    int realBlock = Mapper.toInt(mappedBlock);
+    if (realBlock < 0 || realBlock >= Config.user_block_amount) {
+      throw new IndexOutOfBoundsException("PTR maps to invalid real block: " + realBlock);
+    }
+    return realBlock * Config.block_size * Config.ram_word_size + word;
   }
 
   private int insertToRam(String data, int pointer) {
+    if (data == null) {
+      throw new IllegalArgumentException("Data must not be null");
+    }
     data = data.trim();
+    if (pointer < 0 || pointer + data.length() > ramContent.length) {
+      throw new IndexOutOfBoundsException("Data does not fit in RAM");
+    }
     for (int i = 0; i < data.length(); ++i) {
       ramContent[pointer] = data.charAt(i);
       ++pointer;
@@ -92,7 +112,6 @@ public class RAM {
     }
   }
 
-  // TODO: add guards
   public void loadToSupervisor() {
     String hdd = RM.geHDD();
     String fileName = ChannelDevice.getInstance().getFN();
@@ -112,6 +131,7 @@ public class RAM {
         }
 
         if (data.equals(fileName) && prev.equals("----")) {
+          RM.getInstance().setFileFoundState();
           foundFile = true;
         }
 
@@ -133,6 +153,7 @@ public class RAM {
   }
 
   private void fillPtrTable(int vm) {
+    validateVm(vm);
     int start = 0;
     switch (vm) {
       case 1:
@@ -160,11 +181,16 @@ public class RAM {
   // every third starting from 2
   // this function currently only loads to the first VM'S blocks
   public void loadToUser(int vm) {
+    validateVm(vm);
     int supervisorPointer =
         Config.supervisor_first_block * Config.block_size * Config.ram_word_size;
     int user = Config.code_segment_start; // points to 5 0
-    while (supervisorPointer < Config.ram_size * Config.ram_word_size
+    while (supervisorPointer <= ramContent.length - Config.ram_word_size
         && ramContent[supervisorPointer] != ' ') {
+      if (user < 0 || user > Config.VM_ram_size - Config.ram_word_size) {
+        RM.getInstance().setPI('1');
+        return;
+      }
       int userDataPointer = getPointerFromPTR(user, vm);
       String command =
           ""
@@ -178,25 +204,26 @@ public class RAM {
       ramContent[supervisorPointer + 2] = ' ';
       ramContent[supervisorPointer + 3] = ' ';
 
-      // TODO: add guards so it doesn't jump to where its not supposed to
       if (command.charAt(0) == '$' && command.charAt(3) == '$') {
+        int x;
+        int y;
         try {
-          int x = command.charAt(1) - '0';
-          int y = command.charAt(2) - '0';
-
-          int pointer = x * Config.block_size * Config.ram_word_size + y * Config.ram_word_size;
-
-          if (pointer > Config.VM_ram_size) {
-            RM.getInstance().setPI('1');
-            return;
-          } else {
-            user = pointer;
-            supervisorPointer += 4;
-            continue;
-          }
-        } catch (Exception e) {
+          x = Mapper.toInt(String.valueOf(command.charAt(1)));
+          y = Mapper.toInt(String.valueOf(command.charAt(2)));
+        } catch (IllegalArgumentException e) {
           RM.getInstance().setPI('3');
           return;
+        }
+
+        int pointer = x * Config.block_size * Config.ram_word_size + y * Config.ram_word_size;
+
+        if (pointer < 0 || pointer > Config.VM_ram_size - Config.ram_word_size) {
+          RM.getInstance().setPI('1');
+          return;
+        } else {
+          user = pointer;
+          supervisorPointer += Config.ram_word_size;
+          continue;
         }
       }
 
@@ -211,9 +238,24 @@ public class RAM {
 
   // Fills the vm's PTR table, then loads all the data from supervisor memory to user memory
   public void loadData(int vm) {
+    validateVm(vm);
     CPU cpu = CPU.getInstance();
     cpu.setPTR(vm);
     fillPtrTable(vm);
     loadToUser(vm);
+  }
+
+  private static void validateBlock(int block) {
+    if (block < 0 || block >= Config.block_amount) {
+      throw new IndexOutOfBoundsException(
+          "Block must be between 0 and " + (Config.block_amount - 1) + ": " + block);
+    }
+  }
+
+  private static void validateVm(int vm) {
+    if (vm < 0 || vm >= Config.VM_amount) {
+      throw new IndexOutOfBoundsException(
+          "VM number must be between 0 and " + (Config.VM_amount - 1) + ": " + vm);
+    }
   }
 }

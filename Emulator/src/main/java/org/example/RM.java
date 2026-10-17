@@ -7,10 +7,10 @@ public class RM {
   private RAM ram = RAM.getInstance();
   private CPU cpu = CPU.getInstance();
   private ChannelDevice channelDevice = ChannelDevice.getInstance();
-  private Boolean on = true;
+  private boolean on = true;
   private int vmNum = 0;
-
   private static RM instance = null;
+  private boolean fileFound = false;
 
   private RM() {}
 
@@ -19,6 +19,10 @@ public class RM {
       instance = new RM();
     }
     return instance;
+  }
+
+  public void setFileFoundState() {
+    fileFound = true;
   }
 
   public static String geHDD() {
@@ -65,9 +69,11 @@ public class RM {
       case 1:
         System.out.print("Enter file name: ");
         fileName = scanner.nextLine();
-        while (fileName.length() > Config.ram_word_size) {
+        while (fileName.isBlank() || fileName.length() > Config.ram_word_size) {
           System.out.print(
-              "File name's length must be <= " + Config.ram_word_size + " characters, try again: ");
+              "File name must contain between 1 and "
+                  + Config.ram_word_size
+                  + " characters, try again: ");
           fileName = scanner.nextLine();
         }
         break;
@@ -85,6 +91,10 @@ public class RM {
   }
 
   public void setFileName(String fileName) {
+    if (fileName.isEmpty()) {
+      return;
+    }
+
     channelDevice.setFN(fileName);
   }
 
@@ -93,7 +103,23 @@ public class RM {
   }
 
   public VM createVM() {
-    return new VM(vmNum);
+    if (vmNum >= Config.VM_amount) {
+      throw new IllegalStateException("The maximum number of VMs has been reached");
+    }
+
+    if (!fileFound) {
+      throw new IllegalStateException("Such file has not been found");
+    }
+
+    return new VM(vmNum++);
+  }
+
+  public void clearRegisters() {
+    cpu.clearRegisters();
+  }
+
+  public boolean isOn() {
+    return on;
   }
 
   public char[] getIP() {

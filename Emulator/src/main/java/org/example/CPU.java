@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.Arrays;
+
 public class CPU {
   private static CPU instance = null;
 
@@ -28,20 +30,24 @@ public class CPU {
   }
 
   public char[] getR0() {
-    return r0;
+    return r0.clone();
   }
 
   public char[] getR1() {
-    return r1;
+    return r1.clone();
   }
 
   public char[] getIP() {
-    return ip;
+    return ip.clone();
   }
 
   public void setIP(char[] newIP) {
-    if (newIP.length > 2) {
+    if (newIP == null
+        || newIP.length != ip.length
+        || Character.digit(newIP[0], 16) < 0
+        || Character.digit(newIP[1], 16) < 0) {
       setPI('1');
+      return;
     }
 
     ip[0] = newIP[0];
@@ -49,7 +55,7 @@ public class CPU {
   }
 
   public char[] getSF() {
-    return sf;
+    return sf.clone();
   }
 
   public char getPI() {
@@ -61,6 +67,7 @@ public class CPU {
   }
 
   public void setSI(char newSI) {
+    validateInterrupt(newSI, "SI");
     si = newSI;
   }
 
@@ -69,15 +76,24 @@ public class CPU {
   }
 
   public void setMODE(char mode) {
+    if (mode != '0' && mode != '1') {
+      throw new IllegalArgumentException("MODE must be 0 or 1");
+    }
     this.mode = mode;
   }
 
   public void setPI(char newPI) {
+    validateInterrupt(newPI, "PI");
     pi = newPI;
   }
 
   // The 17th block of each VM is reserved for the PTR table. block saved as hex
   public void setPTR(int vmNum) {
+    if (vmNum < 0 || vmNum >= Config.VM_amount) {
+      setPI('1');
+      return;
+    }
+
     switch (vmNum) {
       case 0: // block 48 in dec
         ptr[0] = '3';
@@ -96,6 +112,24 @@ public class CPU {
 
   // Curent VM's PTR table location
   public char[] getPTR() {
-    return ptr;
+    return ptr.clone();
+  }
+
+  public void clearRegisters() {
+    Arrays.fill(r0, ' ');
+    Arrays.fill(r1, ' ');
+    Arrays.fill(ip, ' ');
+    Arrays.fill(sf, ' ');
+    Arrays.fill(ptr, ' ');
+    mode = '1';
+    pi = '0';
+    si = '0';
+    ti = 'F';
+  }
+
+  private static void validateInterrupt(char value, String register) {
+    if (value < '0' || value > '3') {
+      throw new IllegalArgumentException(register + " must be between 0 and 3");
+    }
   }
 }

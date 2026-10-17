@@ -6,6 +6,10 @@ public class VM {
   private int number;
 
   public VM(int num) {
+    if (num < 0 || num >= Config.VM_amount) {
+      throw new IllegalArgumentException(
+          "VM number must be between 0 and " + (Config.VM_amount - 1) + ": " + num);
+    }
     this.number = num;
   }
 
@@ -13,7 +17,7 @@ public class VM {
     RM.getInstance().loadUserData(this.number);
   }
 
-  public Boolean test() {
+  public boolean test() {
     int pi = RM.getInstance().getPI() - '0';
     int si = RM.getInstance().getSI() - '0';
     int ti = Mapper.toInt("" + RM.getInstance().getTI());
@@ -23,9 +27,21 @@ public class VM {
   // prints commands in the code segment, later should set its IP and move along it
   public String getNextCommand() {
     char[] ip = RM.getInstance().getIP();
-    int pointer = Mapper.toInt("" + ip[0] + ip[1]) * Config.ram_word_size;
+    String ipValue = "" + ip[0] + ip[1];
+    if (ipValue.isBlank()) {
+      return "";
+    }
+
+    int pointer;
+    try {
+      pointer = Mapper.toInt(ipValue) * Config.ram_word_size;
+    } catch (IllegalArgumentException e) {
+      RM.getInstance().setPI('3');
+      return "";
+    }
+
     String command = "";
-    if (pointer < Config.VM_ram_size) {
+    if (pointer >= 0 && pointer <= Config.VM_ram_size - Config.ram_word_size) {
       int realPointer = RM.getInstance().getVmPointer(pointer, this.number);
 
       int realBlock = realPointer / (Config.block_size * Config.ram_word_size);
@@ -46,13 +62,10 @@ public class VM {
 
       int newPointer =
           pointer + Config.ram_word_size >= Config.VM_ram_size ? 0 : pointer + Config.ram_word_size;
-      String newPointerHex = Mapper.toHex(newPointer / 4);
-      char[] newIP = new char[] {' ', ' '};
-      newIP[0] = newPointerHex.charAt(0);
-      if (newPointerHex.length() > 1) {
-        newIP[1] = newPointerHex.charAt(1);
-      }
-      RM.getInstance().setIP(newIP);
+      String newPointerHex = String.format("%02X", newPointer / Config.ram_word_size);
+      RM.getInstance().setIP(newPointerHex.toCharArray());
+    } else {
+      RM.getInstance().setPI('1');
     }
     return command;
   }
