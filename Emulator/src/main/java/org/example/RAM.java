@@ -49,12 +49,12 @@ public class RAM {
     }
     return Mapper.toInt(
                 ""
-                    + ramContent[start + block * 4]
-                    + ramContent[start + block * 4 + 1]
-                    + ramContent[start + block * 4 + 2]
-                    + ramContent[start + block * 4 + 3])
-            * 16
-            * 4
+                    + ramContent[start + block * Config.ram_word_size]
+                    + ramContent[start + block * Config.ram_word_size + 1]
+                    + ramContent[start + block * Config.ram_word_size + 2]
+                    + ramContent[start + block * Config.ram_word_size + 3])
+            * Config.block_size
+            * Config.ram_word_size
         + word;
   }
 
@@ -172,14 +172,33 @@ public class RAM {
               + ramContent[supervisorPointer + 1]
               + ramContent[supervisorPointer + 2]
               + ramContent[supervisorPointer + 3];
-      //      int block = userDataPointer / (16 * 4);
-      //      int word = userDataPointer % (16 * 4) / 4;
 
-      //      System.out.println(block + " " + word + " " + command);
       ramContent[supervisorPointer] = ' ';
       ramContent[supervisorPointer + 1] = ' ';
       ramContent[supervisorPointer + 2] = ' ';
       ramContent[supervisorPointer + 3] = ' ';
+
+      // TODO: add guards so it doesn't jump to where its not supposed to
+      if(command.charAt(0) == '$' && command.charAt(3) == '$'){
+       try{
+         int x = command.charAt(1) - '0';
+         int y = command.charAt(2) - '0';
+
+         int pointer = x * Config.block_size * Config.ram_word_size + y * Config.ram_word_size;
+
+         if(pointer > Config.VM_ram_size){
+           RM.getInstance().setPI('1');
+           return;
+         }else{
+           user = pointer;
+           supervisorPointer += 4;
+           continue;
+         }
+       } catch (Exception e){
+          RM.getInstance().setPI('3');
+          return;
+       }
+      }
 
       ramContent[userDataPointer] = command.charAt(0);
       ramContent[userDataPointer + 1] = command.charAt(1);
@@ -190,8 +209,7 @@ public class RAM {
     }
   }
 
-  // Currently reads the HDD.txt file, finds the fileName (set inside ChannelDevice's FN flag),
-  // loads all the commands to supervisor memory
+  // Fills the vm's PTR table, then loads all the data from supervisor memory to user memory
   public void loadData(int vm) {
     CPU cpu = CPU.getInstance();
     cpu.setPTR(vm);
