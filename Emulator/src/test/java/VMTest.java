@@ -2,7 +2,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import org.example.CPU;
 import org.example.ChannelDevice;
 import org.example.RAM;
@@ -40,7 +39,7 @@ public class VMTest {
   void testGetMyCommandsIsEmptyWhenNothingLoaded() {
     VM vm = new VM(0);
 
-    assertTrue(vm.getMyCommands().isEmpty());
+    assertTrue(vm.getNextCommand().isEmpty());
   }
 
   @Test
@@ -48,7 +47,7 @@ public class VMTest {
     VM vm = new VM(0);
     vm.loadDataToMemory();
 
-    assertTrue(vm.getMyCommands().isEmpty());
+    assertTrue(vm.getNextCommand().isEmpty());
   }
 
   @Test
@@ -56,9 +55,10 @@ public class VMTest {
     loadFileToSupervisor("abcd");
 
     VM vm = new VM(0);
+    RM rm = RM.getInstance();
     vm.loadDataToMemory();
-
-    assertEquals(List.of("5 0 SUBX", "5 1 MOVY", "5 2 ADDZ"), vm.getMyCommands());
+    rm.setIP(new char[] {'5', '0'});
+    assertEquals("5 0 SUBX", vm.getNextCommand());
   }
 
   @Test
