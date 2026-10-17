@@ -1,6 +1,7 @@
 ----
 abcd
 $RJG
+$50$
 ADDX
 GONX
 SUBX
