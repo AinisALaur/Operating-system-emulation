@@ -1,3 +1,4 @@
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.example.Mapper;
@@ -46,5 +47,13 @@ public class MapperTest {
     assertTrue(Mapper.toHex(15).equals("F"));
     assertTrue(Mapper.toHex(255).equals("FF"));
     assertTrue(Mapper.toHex(67).equals("43"));
+  }
+
+  @Test
+  void testMapperRejectsValuesOutsideItsDomain() {
+    assertThrows(IllegalArgumentException.class, () -> Mapper.toInt(null));
+    assertThrows(IllegalArgumentException.class, () -> Mapper.toInt(""));
+    assertThrows(IllegalArgumentException.class, () -> Mapper.toInt("G1"));
+    assertThrows(IllegalArgumentException.class, () -> Mapper.toHex(-1));
   }
 }
