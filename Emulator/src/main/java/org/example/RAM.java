@@ -179,25 +179,25 @@ public class RAM {
       ramContent[supervisorPointer + 3] = ' ';
 
       // TODO: add guards so it doesn't jump to where its not supposed to
-      if(command.charAt(0) == '$' && command.charAt(3) == '$'){
-       try{
-         int x = command.charAt(1) - '0';
-         int y = command.charAt(2) - '0';
+      if (command.charAt(0) == '$' && command.charAt(3) == '$') {
+        try {
+          int x = command.charAt(1) - '0';
+          int y = command.charAt(2) - '0';
 
-         int pointer = x * Config.block_size * Config.ram_word_size + y * Config.ram_word_size;
+          int pointer = x * Config.block_size * Config.ram_word_size + y * Config.ram_word_size;
 
-         if(pointer > Config.VM_ram_size){
-           RM.getInstance().setPI('1');
-           return;
-         }else{
-           user = pointer;
-           supervisorPointer += 4;
-           continue;
-         }
-       } catch (Exception e){
+          if (pointer > Config.VM_ram_size) {
+            RM.getInstance().setPI('1');
+            return;
+          } else {
+            user = pointer;
+            supervisorPointer += 4;
+            continue;
+          }
+        } catch (Exception e) {
           RM.getInstance().setPI('3');
           return;
-       }
+        }
       }
 
       ramContent[userDataPointer] = command.charAt(0);

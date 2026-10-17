@@ -4,7 +4,7 @@ public class CPU {
   private static CPU instance = null;
 
   // Will inicialize fields, when we know their default values
-  private char[] r0 = {' ',' ',' ',' '};
+  private char[] r0 = {' ', ' ', ' ', ' '};
   private char[] r1 = {' ', ' ', ' ', ' '};
   private char[] ip = {' ', ' '};
   private char[] sf = {' ', ' ', ' ', ' '};
@@ -27,20 +27,20 @@ public class CPU {
     return mode;
   }
 
-  public char[] getR0(){
+  public char[] getR0() {
     return r0;
   }
 
-  public char[] getR1(){
+  public char[] getR1() {
     return r1;
   }
 
-  public char[] getIP(){
+  public char[] getIP() {
     return ip;
   }
 
-  public void setIP(char[] newIP){
-    if(newIP.length > 2){
+  public void setIP(char[] newIP) {
+    if (newIP.length > 2) {
       setPI('1');
     }
 
@@ -48,23 +48,23 @@ public class CPU {
     ip[1] = newIP[1];
   }
 
-  public char[] getSF(){
+  public char[] getSF() {
     return sf;
   }
 
-  public char getPI(){
+  public char getPI() {
     return pi;
   }
 
-  public char getSI(){
+  public char getSI() {
     return si;
   }
 
-  public void setSI(char newSI){
+  public void setSI(char newSI) {
     si = newSI;
   }
 
-  public char getTI(){
+  public char getTI() {
     return ti;
   }
 
@@ -72,7 +72,7 @@ public class CPU {
     this.mode = mode;
   }
 
-  public void setPI(char newPI){
+  public void setPI(char newPI) {
     pi = newPI;
   }
 

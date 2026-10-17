@@ -13,11 +13,11 @@ public class VM {
     RM.getInstance().loadUserData(this.number);
   }
 
-  public Boolean test(){
+  public Boolean test() {
     int pi = RM.getInstance().getPI() - '0';
     int si = RM.getInstance().getSI() - '0';
     int ti = Mapper.toInt("" + RM.getInstance().getTI());
-    return !((pi + si ) > 0 || ti == 0);
+    return !((pi + si) > 0 || ti == 0);
   }
 
   // prints commands in the code segment, later should set its IP and move along it
@@ -37,18 +37,19 @@ public class VM {
       String word = RM.getInstance().getWord(realBlock, realWord);
 
       if (!word.trim().isEmpty())
-        command = (
-            Mapper.toHex(vmBlock)
+        command =
+            (Mapper.toHex(vmBlock)
                 + " "
                 + Mapper.toHex(vmWord)
                 + " "
                 + RM.getInstance().getWord(realBlock, realWord));
 
-      int newPointer = pointer + Config.ram_word_size >= Config.VM_ram_size ? 0: pointer + Config.ram_word_size;
+      int newPointer =
+          pointer + Config.ram_word_size >= Config.VM_ram_size ? 0 : pointer + Config.ram_word_size;
       String newPointerHex = Mapper.toHex(newPointer / 4);
-      char[] newIP = new char[]{' ',' '};
+      char[] newIP = new char[] {' ', ' '};
       newIP[0] = newPointerHex.charAt(0);
-      if (newPointerHex.length() > 1){
+      if (newPointerHex.length() > 1) {
         newIP[1] = newPointerHex.charAt(1);
       }
       RM.getInstance().setIP(newIP);
@@ -56,16 +57,17 @@ public class VM {
     return command;
   }
 
-  private void printHelper(int[] blocks){
+  private void printHelper(int[] blocks) {
     System.out.println("-------------------------");
-    for(int block : blocks){
-      for(int i = 0; i < Config.block_size; ++i){
+    for (int block : blocks) {
+      for (int i = 0; i < Config.block_size; ++i) {
         int pointer = block * Config.block_size * Config.ram_word_size + i * Config.ram_word_size;
         int realPointer = RM.getInstance().getVmPointer(pointer, this.number);
         int realBlock = realPointer / (Config.block_size * Config.ram_word_size);
-        int realWord = realPointer % (Config.block_size * Config.ram_word_size) / Config.ram_word_size;
+        int realWord =
+            realPointer % (Config.block_size * Config.ram_word_size) / Config.ram_word_size;
         String word = RM.getInstance().getWord(realBlock, realWord);
-        if(!word.trim().isEmpty()){
+        if (!word.trim().isEmpty()) {
           System.out.println(Mapper.toHex(block) + " " + Mapper.toHex(i) + " " + word);
         }
       }
@@ -74,26 +76,27 @@ public class VM {
   }
 
   // Blocks [0; 3]
-  private void printDS(){
-    printHelper(new int[]{0,1,2,3});
+  private void printDS() {
+    printHelper(new int[] {0, 1, 2, 3});
   }
 
   // Block 4
-  private void printParameters(){
-    printHelper(new int[]{4});
+  private void printParameters() {
+    printHelper(new int[] {4});
   }
 
   // Blocks [5; 16]
-  private void printCS(){
-    printHelper(new int[]{5,6,7,8,9,10,11,12,13,14,15});
+  private void printCS() {
+    printHelper(new int[] {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
   }
 
-  private void printPTR(){
+  private void printPTR() {
     char[] ptr = RM.getInstance().getPTR();
     int block = Mapper.toInt("" + ptr[0] + ptr[1]);
     System.out.println("-------------------------");
-    for(int i = 0; i < Config.block_size; ++i){
-      System.out.println(Mapper.toHex(block) + " " + Mapper.toHex(i) + " " + RM.getInstance().getWord(block, i));
+    for (int i = 0; i < Config.block_size; ++i) {
+      System.out.println(
+          Mapper.toHex(block) + " " + Mapper.toHex(i) + " " + RM.getInstance().getWord(block, i));
     }
     System.out.println("-------------------------");
   }
@@ -119,8 +122,16 @@ public class VM {
   }
 
   public void getMenu() {
-    String[] mainOptions = {"1. Show data segment", "2. Show parameters" , "3. Show code segment" , "4. Show PTR", "5. Show all RM registers", "6. Continue", "7. Turn off VM"};
-    while(true) {
+    String[] mainOptions = {
+      "1. Show data segment",
+      "2. Show parameters",
+      "3. Show code segment",
+      "4. Show PTR",
+      "5. Show all RM registers",
+      "6. Continue",
+      "7. Turn off VM"
+    };
+    while (true) {
       int userOption = getUserOption(mainOptions);
       switch (userOption) {
         case 1:
@@ -146,5 +157,4 @@ public class VM {
       }
     }
   }
-
 }

@@ -84,52 +84,51 @@ public class RM {
     ram.loadData(vm);
   }
 
-  public void setFileName(String fileName){
+  public void setFileName(String fileName) {
     channelDevice.setFN(fileName);
   }
 
-  public void loadToSupervisor(){
+  public void loadToSupervisor() {
     ram.loadToSupervisor();
   }
 
-  public VM createVM(){
+  public VM createVM() {
     return new VM(vmNum);
   }
 
-  public char[] getIP(){
+  public char[] getIP() {
     return cpu.getIP();
   }
 
-  public void setIP(char[] newIP){
+  public void setIP(char[] newIP) {
     cpu.setIP(newIP);
   }
 
-  public char getPI(){
+  public char getPI() {
     return cpu.getPI();
   }
 
-  public void setPI(char newPI){
+  public void setPI(char newPI) {
     cpu.setPI(newPI);
   }
 
-  public char getSI(){
+  public char getSI() {
     return cpu.getSI();
   }
 
-  public void setSI(char newSI){
+  public void setSI(char newSI) {
     cpu.setSI(newSI);
   }
 
-  public char getTI(){
+  public char getTI() {
     return cpu.getTI();
   }
 
-  public char[] getPTR(){
+  public char[] getPTR() {
     return cpu.getPTR();
   }
 
-
-  public void printAllCPURegisters(){
+  public void printAllCPURegisters() {
     String r0 = "" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3];
     String r1 = "" + cpu.getR1()[0] + cpu.getR1()[1] + cpu.getR1()[2] + cpu.getR1()[3];
     String ip = "" + cpu.getIP()[0] + cpu.getIP()[1];
