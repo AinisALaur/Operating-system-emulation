@@ -120,31 +120,31 @@ public class RAM {
     boolean foundFile = false;
     boolean foundStart = false;
     File myHdd = new File(hdd);
-    String prev = "";
 
     try (Scanner myReader = new Scanner(myHdd)) {
       while (myReader.hasNextLine()) {
         String data = myReader.nextLine();
 
+        if (!foundFile) {
+          if (data.equals(fileName)) {
+            RM.getInstance().setFileFoundState();
+            foundFile = true;
+          }
+          continue;
+        }
+
+        if (!foundStart) {
+          if (data.equals(Config.file_start)) {
+            foundStart = true;
+          }
+          continue;
+        }
+
         if (data.equals(Config.file_end)) {
           break;
         }
 
-        if (data.equals(fileName) && prev.equals("----")) {
-          RM.getInstance().setFileFoundState();
-          foundFile = true;
-        }
-
-        if (foundFile && data.equals(Config.file_start)) {
-          foundStart = true;
-          continue;
-        }
-
-        if (foundStart) {
-          pointer = insertToRam(data, pointer);
-        }
-
-        prev = data;
+        pointer = insertToRam(data, pointer);
       }
     } catch (FileNotFoundException e) {
       System.out.println("Couldn't read the file");
