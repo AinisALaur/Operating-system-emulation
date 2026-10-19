@@ -22,7 +22,7 @@ public class RM {
   }
 
   public void setFileFoundState() {
-    fileFound = true;
+    fileFound = !fileFound;
   }
 
   public static String geHDD() {
@@ -103,15 +103,14 @@ public class RM {
   }
 
   public VM createVM() {
-    if (vmNum >= Config.VM_amount) {
-      throw new IllegalStateException("The maximum number of VMs has been reached");
-    }
-
     if (!fileFound) {
-      throw new IllegalStateException("Such file has not been found");
+      cpu.setSI('1');
+      return null;
     }
-
-    return new VM(vmNum++);
+    cpu.setSI('0');
+    int currentVm = vmNum;
+    vmNum = (vmNum + 1) % 3;
+    return new VM(currentVm);
   }
 
   public void clearRegisters() {
@@ -176,5 +175,10 @@ public class RM {
     System.out.println("SI: " + si);
     System.out.println("TI: " + ti);
     System.out.println("-------------------------");
+  }
+
+  // This will have more logic when multiple vm's will be running
+  public void turnOffVM() {
+    setFileFoundState();
   }
 }
