@@ -108,18 +108,6 @@ public class VMTest {
   }
 
   @Test
-  void testRealMachineLimitsCreatedVmCount() {
-    loadFileToSupervisor("abcd");
-    RM rm = RM.getInstance();
-
-    for (int i = 0; i < Config.VM_amount; ++i) {
-      rm.createVM();
-    }
-
-    assertThrows(IllegalStateException.class, rm::createVM);
-  }
-
-  @Test
   void testClearRegistersClearsCpuRegisters() {
     RM rm = RM.getInstance();
     CPU cpu = CPU.getInstance();

@@ -6,10 +6,10 @@ public class CPU {
   private static CPU instance = null;
 
   // Will inicialize fields, when we know their default values
-  private char[] r0 = {' ', ' ', ' ', ' '};
-  private char[] r1 = {' ', ' ', ' ', ' '};
+  private char[] r0 = {'0', ' ', ' ', ' '};
+  private char[] r1 = {'0', ' ', ' ', ' '};
   private char[] ip = {' ', ' '};
-  private char[] sf = {' ', ' ', ' ', ' '};
+  private char[] sf = {'0', '0', '0', '0'};
   private char[] ptr = {' ', ' '};
   private char mode = '1';
   private char pi = '0';
