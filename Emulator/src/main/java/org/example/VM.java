@@ -24,8 +24,9 @@ public class VM {
     return !((pi + si) > 0 || ti == 0);
   }
 
+  // maybe this comment is old now??
   // prints commands in the code segment, later should set its IP and move along it
-  public String getNextCommand() {
+  public String getCommand() {
     char[] ip = RM.getInstance().getIP();
     String ipValue = "" + ip[0] + ip[1];
     if (ipValue.isBlank()) {
@@ -50,9 +51,10 @@ public class VM {
       String word = RM.getInstance().getWord(realBlock, realWord);
       if (!word.trim().isEmpty()) {
         command = word;
+      } else {
+        incrementIP();
       }
 
-      incrementIP();
     } else {
       RM.getInstance().setPI('1');
     }
@@ -150,7 +152,7 @@ public class VM {
       "3. Show code segment",
       "4. Show PTR",
       "5. Show all RM registers",
-      "6. Continue",
+      "6. Exec next command",
       "7. Turn off VM"
     };
     while (true) {
@@ -180,5 +182,65 @@ public class VM {
     }
   }
 
-  public void exec() {}
+  public void exec() {
+
+    RM realMachine = RM.getInstance();
+
+    String command = getCommand();
+
+    if (command.isEmpty()){
+      return;
+    }
+
+    if (command.length() != 4) {
+      realMachine.setPI('2');
+      return;
+    }
+
+    switch (command) {
+      case String op when op.startsWith("LD") -> {
+        realMachine.ld(op.charAt(2), op.charAt(3));
+        incrementIP();
+      }
+      case String op when op.startsWith("ST") -> {
+        realMachine.st(op.charAt(2), op.charAt(3));
+        incrementIP();
+      }
+      case "SWAP" -> {
+        realMachine.swap();
+        incrementIP();
+      }
+      case "ADDX" -> {
+        realMachine.addX();
+        incrementIP();
+      }
+      case "SUBX" -> {
+        realMachine.subX();
+        incrementIP();
+      }
+      case "CMPX" -> {
+        realMachine.cmpX();
+        incrementIP();
+      }
+      case String op when op.startsWith("JP") -> realMachine.jp(op.charAt(2), op.charAt(3));
+      case String op when op.startsWith("JE") -> realMachine.je(op.charAt(2), op.charAt(3));
+      case String op when op.startsWith("JN") -> realMachine.jn(op.charAt(2), op.charAt(3));
+      case String op when op.startsWith("JA") -> realMachine.ja(op.charAt(2), op.charAt(3));
+      case String op when op.startsWith("JB") -> realMachine.jb(op.charAt(2), op.charAt(3));
+      case "GETD" -> {
+        realMachine.getD();
+        incrementIP();
+      }
+      case String op when op.startsWith("GON") -> {
+        realMachine.gon(op.charAt(3));
+        incrementIP();
+      }
+      case String op when op.charAt(0) == 'P' -> {
+        realMachine.p(op.charAt(1), op.charAt(2), op.charAt(3));
+        incrementIP();
+      }
+      case "HALT" -> realMachine.halt();
+      default -> realMachine.setPI('2');
+    }
+  }
 }

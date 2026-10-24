@@ -22,10 +22,9 @@ public class Main {
 
       while (vm.test()) {
         String ip = new String(realMachine.getIP());
-        String command = vm.getNextCommand();
-        if (!command.isEmpty()) {
-          System.out.println("Command: " + ip + " " + command);
-        }
+        String command = vm.getCommand();
+        System.out.println("Next command: " + ip + " " + command);
+        vm.exec();
         vm.getMenu();
       }
       realMachine.turnOffVM();
