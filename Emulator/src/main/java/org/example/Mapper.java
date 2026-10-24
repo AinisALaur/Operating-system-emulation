@@ -2,11 +2,17 @@ package org.example;
 
 public class Mapper {
   public static String toHex(int number) {
-    if (number < 0) {
-      throw new IllegalArgumentException("Number must not be negative");
-    }
-    return Integer.toHexString(number).toUpperCase();
+      if (number < Config.min_number_in_register || number > Config.max_number_in_register) {
+        throw new IllegalArgumentException("Number out of range");
+      }
+
+      if (number < 0) {
+        return String.format("-%03X", -number);
+      }
+
+      return String.format("%04X", number);
   }
+
 
   public static int toInt(String hex) {
     if (hex == null || hex.isBlank()) {
