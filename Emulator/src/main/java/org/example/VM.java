@@ -47,18 +47,10 @@ public class VM {
       int realBlock = realPointer / (Config.block_size * Config.ram_word_size);
       int realWord = realPointer % (Config.block_size * Config.ram_word_size) / 4;
 
-      int vmBlock = pointer / (Config.block_size * Config.ram_word_size);
-      int vmWord = pointer % (Config.block_size * Config.ram_word_size) / 4;
-
       String word = RM.getInstance().getWord(realBlock, realWord);
-
-      if (!word.trim().isEmpty())
-        command =
-            (Mapper.toHex(vmBlock)
-                + " "
-                + Mapper.toHex(vmWord)
-                + " "
-                + RM.getInstance().getWord(realBlock, realWord));
+      if (!word.trim().isEmpty()) {
+        command = word;
+      }
 
       incrementIP();
     } else {
@@ -188,7 +180,5 @@ public class VM {
     }
   }
 
-  public void exec() {
-
-  }
+  public void exec() {}
 }

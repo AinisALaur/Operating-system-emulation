@@ -60,7 +60,7 @@ public class VMTest {
     RM rm = RM.getInstance();
     vm.loadDataToMemory();
     rm.setIP(new char[] {'5', '0'});
-    assertEquals("5 0 SUBX", vm.getNextCommand());
+    assertEquals("SUBX", vm.getNextCommand());
   }
 
   @Test

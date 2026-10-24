@@ -21,9 +21,10 @@ public class Main {
       vm.loadDataToMemory();
 
       while (vm.test()) {
+        String ip = new String(realMachine.getIP());
         String command = vm.getNextCommand();
         if (!command.isEmpty()) {
-          System.out.println("Command: " + command);
+          System.out.println("Command: " + ip + " " + command);
         }
         vm.getMenu();
       }
