@@ -33,8 +33,16 @@ public class CPU {
     return r0.clone();
   }
 
+  public void setR0(char[] newR0) {
+    r0 = newR0;
+  }
+
   public char[] getR1() {
     return r1.clone();
+  }
+
+  public void setR1(char[] newR1) {
+    r1 = newR1;
   }
 
   public char[] getIP() {
@@ -56,6 +64,16 @@ public class CPU {
 
   public char[] getSF() {
     return sf.clone();
+  }
+
+  public void setSF(int idx, char value) {
+    if (idx < 0 || idx >= sf.length) {
+      throw new IllegalArgumentException("Index out of range");
+    }
+    if (value < 0 || value > 1) {
+      throw new IllegalArgumentException("Value out of range");
+    }
+    sf[idx] = value;
   }
 
   public char getPI() {
