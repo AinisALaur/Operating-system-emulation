@@ -134,6 +134,11 @@ public class VM {
     }
   }
 
+  public void parseComamnds() {
+    String command = getNextCommand();
+    System.out.println(command);
+  }
+
   public void getMenu() {
     String[] mainOptions = {
       "1. Show data segment",
