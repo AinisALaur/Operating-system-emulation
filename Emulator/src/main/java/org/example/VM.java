@@ -60,14 +60,31 @@ public class VM {
                 + " "
                 + RM.getInstance().getWord(realBlock, realWord));
 
-      int newPointer =
-          pointer + Config.ram_word_size >= Config.VM_ram_size ? 0 : pointer + Config.ram_word_size;
-      String newPointerHex = String.format("%02X", newPointer / Config.ram_word_size);
-      RM.getInstance().setIP(newPointerHex.toCharArray());
+      incrementIP();
     } else {
       RM.getInstance().setPI('1');
     }
     return command;
+  }
+
+  private void incrementIP() {
+    char[] ip = RM.getInstance().getIP();
+    String ipValue = "" + ip[0] + ip[1];
+    if (ipValue.isBlank()) {
+      return;
+    }
+
+    int wordIndex;
+    try {
+      wordIndex = Mapper.toInt(ipValue);
+    } catch (IllegalArgumentException e) {
+      RM.getInstance().setPI('3');
+      return;
+    }
+
+    int maxWordIndex = Config.VM_ram_size / Config.ram_word_size;
+    int newWordIndex = wordIndex + 1 >= maxWordIndex ? 0 : wordIndex + 1;
+    RM.getInstance().setIP(String.format("%02X", newWordIndex).toCharArray());
   }
 
   private void printHelper(int[] blocks) {
@@ -169,5 +186,9 @@ public class VM {
           return;
       }
     }
+  }
+
+  public void exec() {
+
   }
 }
