@@ -38,7 +38,7 @@ public class ChannelDevice {
 
   // Should return char[] for consistency
   public String getFN() {
-    return ("" + fn[0] + fn[1] + fn[2] + fn[3]).trim();
+    return new String(fn).trim();
   }
 
   // Should use char[] as a parameter for consistency

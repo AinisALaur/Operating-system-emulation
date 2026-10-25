@@ -33,8 +33,7 @@ public class VM {
   // maybe this comment is old now??
   // prints commands in the code segment, later should set its IP and move along it
   public String getCommand() {
-    char[] ip = RM.getInstance().getIP();
-    String ipValue = "" + ip[0] + ip[1];
+    String ipValue = new String(RM.getInstance().getIP());
     if (ipValue.isBlank()) {
       return "";
     }
@@ -68,8 +67,7 @@ public class VM {
   }
 
   private void incrementIP() {
-    char[] ip = RM.getInstance().getIP();
-    String ipValue = "" + ip[0] + ip[1];
+    String ipValue = new String(RM.getInstance().getIP());
     if (ipValue.isBlank()) {
       return;
     }
@@ -98,15 +96,12 @@ public class VM {
             realPointer % (Config.block_size * Config.ram_word_size) / Config.ram_word_size;
         String word = RM.getInstance().getWord(realBlock, realWord);
         if (!word.trim().isEmpty()) {
-          System.out.println(formatDisplayHex(block) + " " + formatDisplayHex(i) + " " + word);
+          System.out.println(
+              Mapper.formatDisplayHex(block) + " " + Mapper.formatDisplayHex(i) + " " + word);
         }
       }
     }
     System.out.println("-------------------------");
-  }
-
-  private String formatDisplayHex(int value) {
-    return Integer.toHexString(value).toUpperCase();
   }
 
   // Blocks [0; 3]
@@ -125,14 +120,13 @@ public class VM {
   }
 
   private void printPTR() {
-    char[] ptr = RM.getInstance().getPTR();
-    int block = Mapper.toInt("" + ptr[0] + ptr[1]);
+    int block = Mapper.toInt(new String(RM.getInstance().getPTR()));
     System.out.println("-------------------------");
     for (int i = 0; i < Config.block_size; ++i) {
       System.out.println(
-          formatDisplayHex(block)
+          Mapper.formatDisplayHex(block)
               + " "
-              + formatDisplayHex(i)
+              + Mapper.formatDisplayHex(i)
               + " "
               + RM.getInstance().getWord(block, i));
     }

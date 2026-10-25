@@ -165,8 +165,10 @@ public class RAM {
         break;
     }
 
-    char[] ptr = CPU.getInstance().getPTR();
-    int pointer = Mapper.toInt("" + ptr[0] + ptr[1]) * Config.block_size * Config.ram_word_size;
+    int pointer =
+        Mapper.toInt(new String(CPU.getInstance().getPTR()))
+            * Config.block_size
+            * Config.ram_word_size;
     for (int i = 0; i < Config.block_size; ++i) {
       String hex = Mapper.toHex(start);
       for (int x = 0; x < hex.length(); ++x) {

@@ -173,11 +173,11 @@ public class RM {
   }
 
   public void printAllCPURegisters() {
-    String r0 = "" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3];
-    String r1 = "" + cpu.getR1()[0] + cpu.getR1()[1] + cpu.getR1()[2] + cpu.getR1()[3];
-    String ip = "" + cpu.getIP()[0] + cpu.getIP()[1];
-    String sf = "" + cpu.getSF()[0] + cpu.getSF()[1] + cpu.getSF()[2] + cpu.getSF()[3];
-    String ptr = "" + cpu.getPTR()[0] + cpu.getPTR()[1];
+    String r0 = new String(cpu.getR0());
+    String r1 = new String(cpu.getR1());
+    String ip = new String(cpu.getIP());
+    String sf = new String(cpu.getSF());
+    String ptr = new String(cpu.getPTR());
     String mode = "" + cpu.getMODE();
     char pi = cpu.getPI();
     char si = cpu.getSI();
@@ -214,9 +214,9 @@ public class RM {
   }
 
   public void addX() {
-    String R0 = "" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3];
-    String R1 = "" + cpu.getR1()[0] + cpu.getR1()[1] + cpu.getR1()[2] + cpu.getR1()[3];
-    int result = Mapper.toInt(R0) + Mapper.toInt(R1);
+    int R0 = Mapper.toInt(new String(cpu.getR0()));
+    int R1 = Mapper.toInt(new String(cpu.getR1()));
+    int result = R0 + R1;
     if (result == 0) {
       cpu.setSF(0, '1');
     } else {
@@ -236,9 +236,9 @@ public class RM {
   }
 
   public void subX() {
-    String R0 = "" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3];
-    String R1 = "" + cpu.getR1()[0] + cpu.getR1()[1] + cpu.getR1()[2] + cpu.getR1()[3];
-    int result = Mapper.toInt(R0) - Mapper.toInt(R1);
+    int R0 = Mapper.toInt(new String(cpu.getR0()));
+    int R1 = Mapper.toInt(new String(cpu.getR1()));
+    int result = R0 - R1;
     if (result == 0) {
       cpu.setSF(0, '1'); // zero-flag
     } else {
@@ -258,8 +258,8 @@ public class RM {
   }
 
   public void cmpX() {
-    int R0 = Mapper.toInt("" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3]);
-    int R1 = Mapper.toInt("" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3]);
+    int R0 = Mapper.toInt(new String(cpu.getR0()));
+    int R1 = Mapper.toInt(new String(cpu.getR1()));
 
     if (R0 == R1) {
       cpu.setSF(0, '1');

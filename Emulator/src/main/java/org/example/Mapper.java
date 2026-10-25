@@ -25,4 +25,8 @@ public class Mapper {
       throw new IllegalArgumentException("Invalid hexadecimal value: " + hex, e);
     }
   }
+
+  public static String formatDisplayHex(int value) {
+    return Integer.toHexString(value).toUpperCase();
+  }
 }

@@ -37,11 +37,17 @@ public class VMTest {
     RAM.getInstance().loadToSupervisor();
   }
 
-  //  @Test
-  //  void testGetMyCommandsIsEmptyWhenNothingLoaded() {
-  //    VM vm = new VM(0);
-  //    assertTrue(vm.getCommand().isEmpty());
-  //  }
+  // Throws because PTR is empty
+  @Test
+  void testGetMyCommandsThrowsIllegalArgumentException() {
+    VM vm = new VM(0);
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          vm.getCommand();
+        });
+  }
 
   @Test
   void testLoadDataToMemoryWithEmptySupervisorLoadsNothing() {
