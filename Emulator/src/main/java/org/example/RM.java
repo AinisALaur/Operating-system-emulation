@@ -200,8 +200,8 @@ public class RM {
   }
 
   public void addX() {
-    String R0 = "" + cpu.getR0()[0] + cpu.getR0()[1];
-    String R1 = "" + cpu.getR1()[0] + cpu.getR1()[1];
+    String R0 = "" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3];
+    String R1 = "" + cpu.getR1()[0] + cpu.getR1()[1] + cpu.getR1()[2] + cpu.getR1()[3];
     int result = Mapper.toInt(R0) + Mapper.toInt(R1);
     if (result == 0){
       cpu.setSF(0, '1');
@@ -222,8 +222,8 @@ public class RM {
   }
 
   public void subX() {
-    String R0 = "" + cpu.getR0()[0] + cpu.getR0()[1];
-    String R1 = "" + cpu.getR1()[0] + cpu.getR1()[1];
+    String R0 = "" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3];
+    String R1 = "" + cpu.getR1()[0] + cpu.getR1()[1] + cpu.getR1()[2] + cpu.getR1()[3];
     int result = Mapper.toInt(R0) - Mapper.toInt(R1);
     if (result == 0){
       cpu.setSF(0, '1');  // zero-flag
