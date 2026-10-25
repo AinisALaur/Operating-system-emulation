@@ -98,11 +98,15 @@ public class VM {
             realPointer % (Config.block_size * Config.ram_word_size) / Config.ram_word_size;
         String word = RM.getInstance().getWord(realBlock, realWord);
         if (!word.trim().isEmpty()) {
-          System.out.println(Mapper.toHex(block) + " " + Mapper.toHex(i) + " " + word);
+          System.out.println(formatDisplayHex(block) + " " + formatDisplayHex(i) + " " + word);
         }
       }
     }
     System.out.println("-------------------------");
+  }
+
+  private String formatDisplayHex(int value) {
+    return Integer.toHexString(value).toUpperCase();
   }
 
   // Blocks [0; 3]
@@ -126,7 +130,11 @@ public class VM {
     System.out.println("-------------------------");
     for (int i = 0; i < Config.block_size; ++i) {
       System.out.println(
-          Mapper.toHex(block) + " " + Mapper.toHex(i) + " " + RM.getInstance().getWord(block, i));
+          formatDisplayHex(block)
+              + " "
+              + formatDisplayHex(i)
+              + " "
+              + RM.getInstance().getWord(block, i));
     }
     System.out.println("-------------------------");
   }
