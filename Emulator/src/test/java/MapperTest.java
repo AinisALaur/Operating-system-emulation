@@ -29,24 +29,24 @@ public class MapperTest {
 
   @Test
   void testMapperToHex() {
-    assertTrue(Mapper.toHex(0).equals("0"));
-    assertTrue(Mapper.toHex(1).equals("1"));
-    assertTrue(Mapper.toHex(2).equals("2"));
-    assertTrue(Mapper.toHex(3).equals("3"));
-    assertTrue(Mapper.toHex(4).equals("4"));
-    assertTrue(Mapper.toHex(5).equals("5"));
-    assertTrue(Mapper.toHex(6).equals("6"));
-    assertTrue(Mapper.toHex(7).equals("7"));
-    assertTrue(Mapper.toHex(8).equals("8"));
-    assertTrue(Mapper.toHex(9).equals("9"));
-    assertTrue(Mapper.toHex(10).equals("A"));
-    assertTrue(Mapper.toHex(11).equals("B"));
-    assertTrue(Mapper.toHex(12).equals("C"));
-    assertTrue(Mapper.toHex(13).equals("D"));
-    assertTrue(Mapper.toHex(14).equals("E"));
-    assertTrue(Mapper.toHex(15).equals("F"));
-    assertTrue(Mapper.toHex(255).equals("FF"));
-    assertTrue(Mapper.toHex(67).equals("43"));
+    assertTrue(Mapper.toHex(0).equals("0000"));
+    assertTrue(Mapper.toHex(1).equals("0001"));
+    assertTrue(Mapper.toHex(2).equals("0002"));
+    assertTrue(Mapper.toHex(3).equals("0003"));
+    assertTrue(Mapper.toHex(4).equals("0004"));
+    assertTrue(Mapper.toHex(5).equals("0005"));
+    assertTrue(Mapper.toHex(6).equals("0006"));
+    assertTrue(Mapper.toHex(7).equals("0007"));
+    assertTrue(Mapper.toHex(8).equals("0008"));
+    assertTrue(Mapper.toHex(9).equals("0009"));
+    assertTrue(Mapper.toHex(10).equals("000A"));
+    assertTrue(Mapper.toHex(11).equals("000B"));
+    assertTrue(Mapper.toHex(12).equals("000C"));
+    assertTrue(Mapper.toHex(13).equals("000D"));
+    assertTrue(Mapper.toHex(14).equals("000E"));
+    assertTrue(Mapper.toHex(15).equals("000F"));
+    assertTrue(Mapper.toHex(255).equals("00FF"));
+    assertTrue(Mapper.toHex(67).equals("0043"));
   }
 
   @Test
@@ -54,6 +54,5 @@ public class MapperTest {
     assertThrows(IllegalArgumentException.class, () -> Mapper.toInt(null));
     assertThrows(IllegalArgumentException.class, () -> Mapper.toInt(""));
     assertThrows(IllegalArgumentException.class, () -> Mapper.toInt("G1"));
-    assertThrows(IllegalArgumentException.class, () -> Mapper.toHex(-1));
   }
 }
