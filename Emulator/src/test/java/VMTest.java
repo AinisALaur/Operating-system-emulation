@@ -126,6 +126,23 @@ public class VMTest {
   }
 
   @Test
+  void testDecrementTI() {
+    VM vm = new VM(0);
+    RM rm = RM.getInstance();
+
+    vm.decrementTI();
+    assertEquals('E', rm.getTI());
+
+    rm.setTI('A');
+    vm.decrementTI();
+    assertEquals('9', rm.getTI());
+
+    rm.setTI('0');
+    vm.decrementTI();
+    assertEquals('0', rm.getTI());
+  }
+
+  @Test
   void testCpuRejectsOutOfBoundsRegisterValues() {
     CPU cpu = CPU.getInstance();
 
