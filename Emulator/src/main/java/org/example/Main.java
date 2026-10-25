@@ -14,7 +14,7 @@ public class Main {
       realMachine.loadToSupervisor();
       VM vm = realMachine.createVM();
       realMachine.setCurrentVM(vm);
-      
+
       if (vm == null) {
         continue;
       }
