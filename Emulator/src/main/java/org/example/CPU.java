@@ -70,7 +70,7 @@ public class CPU {
     if (idx < 0 || idx >= sf.length) {
       throw new IllegalArgumentException("Index out of range");
     }
-    if (value < 0 || value > 1) {
+    if (value - '0' < 0 || value - '0' > 1) {
       throw new IllegalArgumentException("Value out of range");
     }
     sf[idx] = value;
@@ -148,6 +148,16 @@ public class CPU {
   private static void validateInterrupt(char value, String register) {
     if (value < '0' || value > '3') {
       throw new IllegalArgumentException(register + " must be between 0 and 3");
+    }
+  }
+
+  public void xchg(){
+    ChannelDevice channelDevice = ChannelDevice.getInstance();
+
+
+
+    switch (mode) {
+
     }
   }
 }
