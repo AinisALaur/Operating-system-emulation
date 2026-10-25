@@ -24,8 +24,9 @@ public class VM {
     return !((pi + si) > 0 || ti == 0);
   }
 
+  // maybe this comment is old now??
   // prints commands in the code segment, later should set its IP and move along it
-  public String getNextCommand() {
+  public String getCommand() {
     char[] ip = RM.getInstance().getIP();
     String ipValue = "" + ip[0] + ip[1];
     if (ipValue.isBlank()) {
@@ -47,27 +48,37 @@ public class VM {
       int realBlock = realPointer / (Config.block_size * Config.ram_word_size);
       int realWord = realPointer % (Config.block_size * Config.ram_word_size) / 4;
 
-      int vmBlock = pointer / (Config.block_size * Config.ram_word_size);
-      int vmWord = pointer % (Config.block_size * Config.ram_word_size) / 4;
-
       String word = RM.getInstance().getWord(realBlock, realWord);
+      if (!word.trim().isEmpty()) {
+        command = word;
+      } else {
+        incrementIP();
+      }
 
-      if (!word.trim().isEmpty())
-        command =
-            (Mapper.toHex(vmBlock)
-                + " "
-                + Mapper.toHex(vmWord)
-                + " "
-                + RM.getInstance().getWord(realBlock, realWord));
-
-      int newPointer =
-          pointer + Config.ram_word_size >= Config.VM_ram_size ? 0 : pointer + Config.ram_word_size;
-      String newPointerHex = String.format("%02X", newPointer / Config.ram_word_size);
-      RM.getInstance().setIP(newPointerHex.toCharArray());
     } else {
       RM.getInstance().setPI('1');
     }
     return command;
+  }
+
+  private void incrementIP() {
+    char[] ip = RM.getInstance().getIP();
+    String ipValue = "" + ip[0] + ip[1];
+    if (ipValue.isBlank()) {
+      return;
+    }
+
+    int wordIndex;
+    try {
+      wordIndex = Mapper.toInt(ipValue);
+    } catch (IllegalArgumentException e) {
+      RM.getInstance().setPI('3');
+      return;
+    }
+
+    int maxWordIndex = Config.VM_ram_size / Config.ram_word_size;
+    int newWordIndex = wordIndex + 1 >= maxWordIndex ? 0 : wordIndex + 1;
+    RM.getInstance().setIP(String.format("%02X", newWordIndex).toCharArray());
   }
 
   private void printHelper(int[] blocks) {
@@ -141,7 +152,7 @@ public class VM {
       "3. Show code segment",
       "4. Show PTR",
       "5. Show all RM registers",
-      "6. Continue",
+      "6. Exec next command",
       "7. Turn off VM"
     };
     while (true) {
@@ -168,6 +179,68 @@ public class VM {
           RM.getInstance().setSI('3');
           return;
       }
+    }
+  }
+
+  public void exec() {
+
+    RM realMachine = RM.getInstance();
+
+    String command = getCommand();
+
+    if (command.isEmpty()) {
+      return;
+    }
+
+    if (command.length() != 4) {
+      realMachine.setPI('2');
+      return;
+    }
+
+    switch (command) {
+      case String op when op.startsWith("LD") -> {
+        realMachine.ld(op.charAt(2), op.charAt(3));
+        incrementIP();
+      }
+      case String op when op.startsWith("ST") -> {
+        realMachine.st(op.charAt(2), op.charAt(3));
+        incrementIP();
+      }
+      case "SWAP" -> {
+        realMachine.swap();
+        incrementIP();
+      }
+      case "ADDX" -> {
+        realMachine.addX();
+        incrementIP();
+      }
+      case "SUBX" -> {
+        realMachine.subX();
+        incrementIP();
+      }
+      case "CMPX" -> {
+        realMachine.cmpX();
+        incrementIP();
+      }
+      case String op when op.startsWith("JP") -> realMachine.jp(op.charAt(2), op.charAt(3));
+      case String op when op.startsWith("JE") -> realMachine.je(op.charAt(2), op.charAt(3));
+      case String op when op.startsWith("JN") -> realMachine.jn(op.charAt(2), op.charAt(3));
+      case String op when op.startsWith("JA") -> realMachine.ja(op.charAt(2), op.charAt(3));
+      case String op when op.startsWith("JB") -> realMachine.jb(op.charAt(2), op.charAt(3));
+      case "GETD" -> {
+        realMachine.getD();
+        incrementIP();
+      }
+      case String op when op.startsWith("GON") -> {
+        realMachine.gon(op.charAt(3));
+        incrementIP();
+      }
+      case String op when op.charAt(0) == 'P' -> {
+        realMachine.p(op.charAt(1), op.charAt(2), op.charAt(3));
+        incrementIP();
+      }
+      case "HALT" -> realMachine.halt();
+      default -> realMachine.setPI('2');
     }
   }
 }

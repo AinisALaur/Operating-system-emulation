@@ -181,4 +181,118 @@ public class RM {
   public void turnOffVM() {
     setFileFoundState();
   }
+
+  public void ld(char x, char y) {
+    cpu.setR0(getWord(Character.digit(x, 16), Character.digit(y, 16)).toCharArray());
+  }
+
+  public void st(char x, char y) {}
+
+  public void swap() {
+    char[] temp = cpu.getR0();
+    cpu.setR0(cpu.getR1());
+    cpu.setR1(temp);
+  }
+
+  public void addX() {
+    String R0 = "" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3];
+    String R1 = "" + cpu.getR1()[0] + cpu.getR1()[1] + cpu.getR1()[2] + cpu.getR1()[3];
+    int result = Mapper.toInt(R0) + Mapper.toInt(R1);
+    if (result == 0) {
+      cpu.setSF(0, '1');
+    } else {
+      cpu.setSF(0, '0');
+    }
+    if (result >= 0) {
+      cpu.setSF(1, '0');
+    } else {
+      cpu.setSF(1, '1');
+    }
+    if (result > Config.max_number_in_register || result < Config.min_number_in_register) {
+      cpu.setSF(3, '1');
+    } else {
+      cpu.setSF(3, '0');
+    }
+    cpu.setR0(Mapper.toHex(result).toCharArray());
+  }
+
+  public void subX() {
+    String R0 = "" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3];
+    String R1 = "" + cpu.getR1()[0] + cpu.getR1()[1] + cpu.getR1()[2] + cpu.getR1()[3];
+    int result = Mapper.toInt(R0) - Mapper.toInt(R1);
+    if (result == 0) {
+      cpu.setSF(0, '1'); // zero-flag
+    } else {
+      cpu.setSF(0, '0');
+    }
+    if (result >= 0) {
+      cpu.setSF(1, '0'); // sign-flag
+    } else {
+      cpu.setSF(1, '1');
+    }
+    if (result > Config.max_number_in_register || result < Config.min_number_in_register) {
+      cpu.setSF(3, '1'); // overflow-flag
+    } else {
+      cpu.setSF(3, '0');
+    }
+    cpu.setR0(Mapper.toHex(result).toCharArray());
+  }
+
+  public void cmpX() {
+    int R0 = Mapper.toInt("" + cpu.getR0()[0] + cpu.getR0()[1]);
+    int R1 = Mapper.toInt("" + cpu.getR1()[0] + cpu.getR1()[1]);
+
+    if (R0 == R1) {
+      cpu.setSF(0, '1');
+      cpu.setSF(1, '0');
+    }
+
+    if (R0 < R1) {
+      cpu.setSF(0, '0');
+      cpu.setSF(1, '1');
+    }
+
+    if (R0 > R1) {
+      cpu.setSF(0, '0');
+      cpu.setSF(1, '0');
+    }
+  }
+
+  public void jp(char x, char y) {
+    cpu.setIP(new char[] {x, y});
+  }
+
+  public void je(char x, char y) {
+    if (cpu.getSF()[0] == '1') {
+      cpu.setIP(new char[] {x, y});
+    }
+  }
+
+  public void jn(char x, char y) {
+    if (cpu.getSF()[0] == '0') {
+      cpu.setIP(new char[] {x, y});
+    }
+  }
+
+  public void ja(char x, char y) {
+    if (cpu.getSF()[0] == '0' && cpu.getSF()[1] == '0') {
+      cpu.setIP(new char[] {x, y});
+    }
+  }
+
+  public void jb(char x, char y) {
+    if (cpu.getSF()[0] == '0' && cpu.getSF()[1] == '1') {
+      cpu.setIP(new char[] {x, y});
+    }
+  }
+
+  public void getD() {}
+
+  public void p(char x, char y, char z) {}
+
+  public void gon(char x) {}
+
+  public void halt() {
+    cpu.setSI('3');
+  }
 }

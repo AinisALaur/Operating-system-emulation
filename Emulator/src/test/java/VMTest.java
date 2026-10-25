@@ -41,7 +41,7 @@ public class VMTest {
   void testGetMyCommandsIsEmptyWhenNothingLoaded() {
     VM vm = new VM(0);
 
-    assertTrue(vm.getNextCommand().isEmpty());
+    assertTrue(vm.getCommand().isEmpty());
   }
 
   @Test
@@ -49,7 +49,7 @@ public class VMTest {
     VM vm = new VM(0);
     vm.loadDataToMemory();
 
-    assertTrue(vm.getNextCommand().isEmpty());
+    assertTrue(vm.getCommand().isEmpty());
   }
 
   @Test
@@ -60,7 +60,7 @@ public class VMTest {
     RM rm = RM.getInstance();
     vm.loadDataToMemory();
     rm.setIP(new char[] {'5', '0'});
-    assertEquals("5 0 SUBX", vm.getNextCommand());
+    assertEquals("SUBX", vm.getCommand());
   }
 
   @Test

@@ -21,11 +21,11 @@ public class Main {
       vm.loadDataToMemory();
 
       while (vm.test()) {
-        String command = vm.getNextCommand();
-        if (!command.isEmpty()) {
-          System.out.println("Command: " + command);
-        }
+        String ip = new String(realMachine.getIP());
+        String command = vm.getCommand();
+        System.out.println("Next command: " + ip + " " + command);
         vm.getMenu();
+        vm.exec();
       }
       realMachine.turnOffVM();
     }

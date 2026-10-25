@@ -80,6 +80,7 @@ public class RAM {
     if (pointer < 0 || pointer + data.length() > ramContent.length) {
       throw new IndexOutOfBoundsException("Data does not fit in RAM");
     }
+    // TODO: check data.lenght() == 4
     for (int i = 0; i < data.length(); ++i) {
       ramContent[pointer] = data.charAt(i);
       ++pointer;
