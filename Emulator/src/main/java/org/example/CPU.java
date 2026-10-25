@@ -151,13 +151,10 @@ public class CPU {
     }
   }
 
-  public void xchg(){
+  public void xchg() {
     ChannelDevice channelDevice = ChannelDevice.getInstance();
 
-
-
     switch (mode) {
-
     }
   }
 }

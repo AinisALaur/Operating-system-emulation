@@ -188,7 +188,7 @@ public class VM {
 
     String command = getCommand();
 
-    if (command.isEmpty()){
+    if (command.isEmpty()) {
       return;
     }
 
