@@ -24,11 +24,16 @@ public class VM {
     return !((pi + si) > 0 || ti == 0);
   }
 
+  public void decrementTI() {
+    RM realMachine = RM.getInstance();
+    int ti = Mapper.toInt("" + realMachine.getTI());
+    realMachine.setTI(Character.toUpperCase(Character.forDigit(Math.max(0, ti - 1), 16)));
+  }
+
   // maybe this comment is old now??
   // prints commands in the code segment, later should set its IP and move along it
   public String getCommand() {
-    char[] ip = RM.getInstance().getIP();
-    String ipValue = "" + ip[0] + ip[1];
+    String ipValue = new String(RM.getInstance().getIP());
     if (ipValue.isBlank()) {
       return "";
     }
@@ -62,8 +67,7 @@ public class VM {
   }
 
   private void incrementIP() {
-    char[] ip = RM.getInstance().getIP();
-    String ipValue = "" + ip[0] + ip[1];
+    String ipValue = new String(RM.getInstance().getIP());
     if (ipValue.isBlank()) {
       return;
     }
@@ -92,7 +96,8 @@ public class VM {
             realPointer % (Config.block_size * Config.ram_word_size) / Config.ram_word_size;
         String word = RM.getInstance().getWord(realBlock, realWord);
         if (!word.trim().isEmpty()) {
-          System.out.println(Mapper.toHex(block) + " " + Mapper.toHex(i) + " " + word);
+          System.out.println(
+              Mapper.formatDisplayHex(block) + " " + Mapper.formatDisplayHex(i) + " " + word);
         }
       }
     }
@@ -115,12 +120,15 @@ public class VM {
   }
 
   private void printPTR() {
-    char[] ptr = RM.getInstance().getPTR();
-    int block = Mapper.toInt("" + ptr[0] + ptr[1]);
+    int block = Mapper.toInt(new String(RM.getInstance().getPTR()));
     System.out.println("-------------------------");
     for (int i = 0; i < Config.block_size; ++i) {
       System.out.println(
-          Mapper.toHex(block) + " " + Mapper.toHex(i) + " " + RM.getInstance().getWord(block, i));
+          Mapper.formatDisplayHex(block)
+              + " "
+              + Mapper.formatDisplayHex(i)
+              + " "
+              + RM.getInstance().getWord(block, i));
     }
     System.out.println("-------------------------");
   }
@@ -156,6 +164,8 @@ public class VM {
       "7. Turn off VM"
     };
     while (true) {
+      String ip = new String(RM.getInstance().getIP());
+      System.out.println("Next command: " + ip + " " + getCommand());
       int userOption = getUserOption(mainOptions);
       switch (userOption) {
         case 1:
@@ -242,5 +252,6 @@ public class VM {
       case "HALT" -> realMachine.halt();
       default -> realMachine.setPI('2');
     }
+    decrementTI();
   }
 }

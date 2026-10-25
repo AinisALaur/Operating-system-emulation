@@ -21,10 +21,9 @@ public class Main {
       vm.loadDataToMemory();
 
       while (vm.test()) {
-        String ip = new String(realMachine.getIP());
-        String command = vm.getCommand();
-        System.out.println("Next command: " + ip + " " + command);
-        vm.getMenu();
+        if (realMachine.getStepMode()) {
+          vm.getMenu();
+        }
         vm.exec();
       }
       realMachine.turnOffVM();

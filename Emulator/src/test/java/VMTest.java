@@ -37,11 +37,16 @@ public class VMTest {
     RAM.getInstance().loadToSupervisor();
   }
 
+  // Throws because PTR is empty
   @Test
-  void testGetMyCommandsIsEmptyWhenNothingLoaded() {
+  void testGetMyCommandsThrowsIllegalArgumentException() {
     VM vm = new VM(0);
 
-    assertTrue(vm.getCommand().isEmpty());
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          vm.getCommand();
+        });
   }
 
   @Test
@@ -120,9 +125,26 @@ public class VMTest {
 
     assertEquals('0', rm.getPI());
     assertEquals('0', rm.getSI());
-    assertEquals("  ", new String(rm.getIP()));
+    assertEquals("00", new String(rm.getIP()));
     assertEquals('1', cpu.getMODE());
     assertEquals('F', rm.getTI());
+  }
+
+  @Test
+  void testDecrementTI() {
+    VM vm = new VM(0);
+    RM rm = RM.getInstance();
+
+    vm.decrementTI();
+    assertEquals('E', rm.getTI());
+
+    rm.setTI('A');
+    vm.decrementTI();
+    assertEquals('9', rm.getTI());
+
+    rm.setTI('0');
+    vm.decrementTI();
+    assertEquals('0', rm.getTI());
   }
 
   @Test
