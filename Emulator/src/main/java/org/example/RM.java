@@ -149,6 +149,10 @@ public class RM {
     return cpu.getTI();
   }
 
+  public void setTI(char newTI) {
+    cpu.setTI(newTI);
+  }
+
   public char[] getPTR() {
     return cpu.getPTR();
   }
@@ -239,8 +243,8 @@ public class RM {
   }
 
   public void cmpX() {
-    int R0 = Mapper.toInt("" + cpu.getR0()[0] + cpu.getR0()[1]);
-    int R1 = Mapper.toInt("" + cpu.getR1()[0] + cpu.getR1()[1]);
+    int R0 = Mapper.toInt("" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3]);
+    int R1 = Mapper.toInt("" + cpu.getR0()[0] + cpu.getR0()[1] + cpu.getR0()[2] + cpu.getR0()[3]);
 
     if (R0 == R1) {
       cpu.setSF(0, '1');
@@ -286,7 +290,8 @@ public class RM {
     }
   }
 
-  public void getD() {}
+  public void getD() {
+  }
 
   public void p(char x, char y, char z) {}
 
