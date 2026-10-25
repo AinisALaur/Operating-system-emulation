@@ -9,6 +9,7 @@ public class RM {
   private ChannelDevice channelDevice = ChannelDevice.getInstance();
   private boolean on = true;
   private int vmNum = 0;
+  private VM currentVM = null;
   private static RM instance = null;
   private boolean fileFound = false;
   private boolean stepMode = true;
@@ -20,6 +21,20 @@ public class RM {
       instance = new RM();
     }
     return instance;
+  }
+
+  public void setCurrentVM(VM vm) {
+    this.currentVM = vm;
+  }
+
+  public VM getCurrentVM() {
+    return this.currentVM;
+  }
+
+  // This will have more logic when multiple vm's will be running
+  public void turnOffVM() {
+    currentVM.setOn(false);
+    setFileFoundState();
   }
 
   public void setFileFoundState() {
@@ -194,11 +209,6 @@ public class RM {
     System.out.println("SI: " + si);
     System.out.println("TI: " + ti);
     System.out.println("-------------------------");
-  }
-
-  // This will have more logic when multiple vm's will be running
-  public void turnOffVM() {
-    setFileFoundState();
   }
 
   public void ld(char x, char y) {
