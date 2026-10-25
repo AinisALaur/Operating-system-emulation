@@ -24,6 +24,12 @@ public class VM {
     return !((pi + si) > 0 || ti == 0);
   }
 
+  public void decrementTI() {
+    RM realMachine = RM.getInstance();
+    int ti = Mapper.toInt("" + realMachine.getTI());
+    realMachine.setTI(Character.toUpperCase(Character.forDigit(Math.max(0, ti - 1), 16)));
+  }
+
   // maybe this comment is old now??
   // prints commands in the code segment, later should set its IP and move along it
   public String getCommand() {
@@ -242,5 +248,6 @@ public class VM {
       case "HALT" -> realMachine.halt();
       default -> realMachine.setPI('2');
     }
+    decrementTI();
   }
 }
