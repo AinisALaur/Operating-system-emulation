@@ -5,12 +5,11 @@ import java.util.Arrays;
 public class CPU {
   private static CPU instance = null;
 
-  // Will inicialize fields, when we know their default values
-  private char[] r0 = {'0', ' ', ' ', ' '};
-  private char[] r1 = {'0', ' ', ' ', ' '};
-  private char[] ip = {' ', ' '};
+  private char[] r0 = {'0', '0', '0', '0'};
+  private char[] r1 = {'0', '0', '0', '0'};
+  private char[] ip = {'0', '0'};
   private char[] sf = {'0', '0', '0', '0'};
-  private char[] ptr = {' ', ' '};
+  private char[] ptr = {'0', '0'};
   private char mode = '1';
   private char pi = '0';
   private char si = '0';
@@ -25,9 +24,6 @@ public class CPU {
     return instance;
   }
 
-  public char getMODE() {
-    return mode;
-  }
 
   public char[] getR0() {
     return r0.clone();
@@ -37,6 +33,7 @@ public class CPU {
     r0 = newR0;
   }
 
+
   public char[] getR1() {
     return r1.clone();
   }
@@ -45,10 +42,12 @@ public class CPU {
     r1 = newR1;
   }
 
+
   public char[] getIP() {
     return ip.clone();
   }
 
+  // Question: do we really need to set PI = 1 here?
   public void setIP(char[] newIP) {
     if (newIP == null
         || newIP.length != ip.length
@@ -62,10 +61,12 @@ public class CPU {
     ip[1] = newIP[1];
   }
 
+
   public char[] getSF() {
     return sf.clone();
   }
 
+  // Sets SF one bit at a time
   public void setSF(int idx, char value) {
     if (idx < 0 || idx >= sf.length) {
       throw new IllegalArgumentException("Index out of range");
@@ -76,36 +77,13 @@ public class CPU {
     sf[idx] = value;
   }
 
-  public char getPI() {
-    return pi;
+
+  // Curent VM's PTR table location
+  public char[] getPTR() {
+    return ptr.clone();
   }
 
-  public char getSI() {
-    return si;
-  }
-
-  public void setSI(char newSI) {
-    validateInterrupt(newSI, "SI");
-    si = newSI;
-  }
-
-  public char getTI() {
-    return ti;
-  }
-
-  public void setMODE(char mode) {
-    if (mode != '0' && mode != '1') {
-      throw new IllegalArgumentException("MODE must be 0 or 1");
-    }
-    this.mode = mode;
-  }
-
-  public void setPI(char newPI) {
-    validateInterrupt(newPI, "PI");
-    pi = newPI;
-  }
-
-  // The 17th block of each VM is reserved for the PTR table. block saved as hex
+  // The 17th block of each VM is reserved for the PTR table. Block saved as hex
   public void setPTR(int vmNum) {
     if (vmNum < 0 || vmNum >= Config.VM_amount) {
       setPI('1');
@@ -128,22 +106,61 @@ public class CPU {
     }
   }
 
-  // Curent VM's PTR table location
-  public char[] getPTR() {
-    return ptr.clone();
+
+  public char getMODE() {
+    return mode;
   }
 
+  public void setMODE(char mode) {
+    if (mode != '0' && mode != '1') {
+      throw new IllegalArgumentException("MODE must be 0 or 1");
+    }
+    this.mode = mode;
+  }
+
+
+  public char getPI() {
+    return pi;
+  }
+
+  public void setPI(char newPI) {
+    validateInterrupt(newPI, "PI");
+    pi = newPI;
+  }
+
+
+  public char getSI() {
+    return si;
+  }
+
+  public void setSI(char newSI) {
+    validateInterrupt(newSI, "SI");
+    si = newSI;
+  }
+
+
+  public char getTI() {
+    return ti;
+  }
+
+  public void setTI(char newTI) {
+    ti = newTI;
+  }
+
+
+  // Null's all registers. Maybe mode shouldn't be 1 by default? 
   public void clearRegisters() {
-    Arrays.fill(r0, ' ');
-    Arrays.fill(r1, ' ');
-    Arrays.fill(ip, ' ');
-    Arrays.fill(sf, ' ');
-    Arrays.fill(ptr, ' ');
+    Arrays.fill(r0, '0');
+    Arrays.fill(r1, '0');
+    Arrays.fill(ip, '0');
+    Arrays.fill(sf, '0');
+    Arrays.fill(ptr, '0');
     mode = '1';
     pi = '0';
     si = '0';
     ti = 'F';
   }
+
 
   private static void validateInterrupt(char value, String register) {
     if (value < '0' || value > '3') {
@@ -151,6 +168,7 @@ public class CPU {
     }
   }
 
+  // TODO: xchg based on Channel Device's registers
   public void xchg() {
     ChannelDevice channelDevice = ChannelDevice.getInstance();
 
