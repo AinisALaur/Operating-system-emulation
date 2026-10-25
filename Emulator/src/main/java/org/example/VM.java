@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 public class VM {
   private int number;
+  private boolean on = true;
 
   public VM(int num) {
     if (num < 0 || num >= Config.VM_amount) {
@@ -11,6 +12,14 @@ public class VM {
           "VM number must be between 0 and " + (Config.VM_amount - 1) + ": " + num);
     }
     this.number = num;
+  }
+
+  public boolean isOn() {
+    return on;
+  }
+
+  public void setOn(boolean on) {
+    this.on = on;
   }
 
   public void loadDataToMemory() {
