@@ -24,7 +24,6 @@ public class CPU {
     return instance;
   }
 
-
   public char[] getR0() {
     return r0.clone();
   }
@@ -33,7 +32,6 @@ public class CPU {
     r0 = newR0;
   }
 
-
   public char[] getR1() {
     return r1.clone();
   }
@@ -41,7 +39,6 @@ public class CPU {
   public void setR1(char[] newR1) {
     r1 = newR1;
   }
-
 
   public char[] getIP() {
     return ip.clone();
@@ -61,7 +58,6 @@ public class CPU {
     ip[1] = newIP[1];
   }
 
-
   public char[] getSF() {
     return sf.clone();
   }
@@ -76,7 +72,6 @@ public class CPU {
     }
     sf[idx] = value;
   }
-
 
   // Curent VM's PTR table location
   public char[] getPTR() {
@@ -106,7 +101,6 @@ public class CPU {
     }
   }
 
-
   public char getMODE() {
     return mode;
   }
@@ -118,7 +112,6 @@ public class CPU {
     this.mode = mode;
   }
 
-
   public char getPI() {
     return pi;
   }
@@ -127,7 +120,6 @@ public class CPU {
     validateInterrupt(newPI, "PI");
     pi = newPI;
   }
-
 
   public char getSI() {
     return si;
@@ -138,7 +130,6 @@ public class CPU {
     si = newSI;
   }
 
-
   public char getTI() {
     return ti;
   }
@@ -147,8 +138,7 @@ public class CPU {
     ti = newTI;
   }
 
-
-  // Null's all registers. Maybe mode shouldn't be 1 by default? 
+  // Null's all registers. Maybe mode shouldn't be 1 by default?
   public void clearRegisters() {
     Arrays.fill(r0, '0');
     Arrays.fill(r1, '0');
@@ -160,7 +150,6 @@ public class CPU {
     si = '0';
     ti = 'F';
   }
-
 
   private static void validateInterrupt(char value, String register) {
     if (value < '0' || value > '3') {

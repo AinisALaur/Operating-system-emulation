@@ -66,9 +66,7 @@ public class RM {
 
   public String getMenu() {
     String[] mainOptions = {
-            "1. Choose file",
-            "2. Change to " + (stepMode ? "user" : "step") + " mode",
-            "3. Quit"
+      "1. Choose file", "2. Change to " + (stepMode ? "user" : "step") + " mode", "3. Quit"
     };
     Scanner scanner = new Scanner(System.in);
     String fileName = "";
@@ -307,8 +305,7 @@ public class RM {
     }
   }
 
-  public void getD() {
-  }
+  public void getD() {}
 
   public void p(char x, char y, char z) {}
 

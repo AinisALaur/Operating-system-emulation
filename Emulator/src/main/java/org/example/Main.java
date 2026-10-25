@@ -21,7 +21,7 @@ public class Main {
       vm.loadDataToMemory();
 
       while (vm.test()) {
-        if (realMachine.getStepMode()){
+        if (realMachine.getStepMode()) {
           vm.getMenu();
         }
         vm.exec();

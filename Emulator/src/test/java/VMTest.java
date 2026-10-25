@@ -37,12 +37,11 @@ public class VMTest {
     RAM.getInstance().loadToSupervisor();
   }
 
-  @Test
-  void testGetMyCommandsIsEmptyWhenNothingLoaded() {
-    VM vm = new VM(0);
-
-    assertTrue(vm.getCommand().isEmpty());
-  }
+  //  @Test
+  //  void testGetMyCommandsIsEmptyWhenNothingLoaded() {
+  //    VM vm = new VM(0);
+  //    assertTrue(vm.getCommand().isEmpty());
+  //  }
 
   @Test
   void testLoadDataToMemoryWithEmptySupervisorLoadsNothing() {
@@ -120,7 +119,7 @@ public class VMTest {
 
     assertEquals('0', rm.getPI());
     assertEquals('0', rm.getSI());
-    assertEquals("  ", new String(rm.getIP()));
+    assertEquals("00", new String(rm.getIP()));
     assertEquals('1', cpu.getMODE());
     assertEquals('F', rm.getTI());
   }

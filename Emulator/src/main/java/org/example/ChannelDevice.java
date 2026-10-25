@@ -5,13 +5,13 @@ import java.util.Arrays;
 public class ChannelDevice {
   private static ChannelDevice instance = null;
 
-  private char[] sb = new char[1];  // source block
-  private char[] db = new char[1];  // destination block 
-  private char[] fn = new char[4];  // file name
-  private char[] ff = new char[2];  // byte offset in block
-  private char[] bl = new char[2];  // byte length (number of bytes sent)
-  private char[] st = new char[1];  // source object number
-  private char[] dt = new char[1];  // destination object number
+  private char[] sb = new char[1]; // source block
+  private char[] db = new char[1]; // destination block
+  private char[] fn = new char[4]; // file name
+  private char[] ff = new char[2]; // byte offset in block
+  private char[] bl = new char[2]; // byte length (number of bytes sent)
+  private char[] st = new char[1]; // source object number
+  private char[] dt = new char[1]; // destination object number
 
   public static ChannelDevice getInstance() {
     if (instance == null) {
@@ -19,7 +19,6 @@ public class ChannelDevice {
     }
     return instance;
   }
-
 
   public char getSB() {
     return sb[0];
@@ -29,7 +28,6 @@ public class ChannelDevice {
     sb[0] = newSB;
   }
 
-
   public char getDB() {
     return db[0];
   }
@@ -37,7 +35,6 @@ public class ChannelDevice {
   public void setDB(char newDB) {
     db[0] = newDB;
   }
-
 
   // Should return char[] for consistency
   public String getFN() {
@@ -57,7 +54,6 @@ public class ChannelDevice {
     }
   }
 
-
   public char[] getFF() {
     return ff.clone();
   }
@@ -73,7 +69,6 @@ public class ChannelDevice {
     ff[0] = newFF[0];
     ff[1] = newFF[1];
   }
-
 
   public char[] getBL() {
     return bl.clone();
@@ -91,7 +86,6 @@ public class ChannelDevice {
     bl[1] = newBL[1];
   }
 
-
   public char getST() {
     return st[0];
   }
@@ -99,7 +93,6 @@ public class ChannelDevice {
   public void setST(char newST) {
     st[0] = newST;
   }
-
 
   public char getDT() {
     return dt[0];
