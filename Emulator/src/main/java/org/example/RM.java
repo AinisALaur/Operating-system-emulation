@@ -11,6 +11,7 @@ public class RM {
   private int vmNum = 0;
   private static RM instance = null;
   private boolean fileFound = false;
+  private boolean stepMode = true;
 
   private RM() {}
 
@@ -27,6 +28,10 @@ public class RM {
 
   public static String geHDD() {
     return HDD;
+  }
+
+  public boolean getStepMode() {
+    return stepMode;
   }
 
   // Helper function to get user input
@@ -60,7 +65,11 @@ public class RM {
   }
 
   public String getMenu() {
-    String[] mainOptions = {"1. Choose file", "2. Quit"};
+    String[] mainOptions = {
+            "1. Choose file",
+            "2. Change to " + (stepMode ? "user" : "step") + " mode",
+            "3. Quit"
+    };
     Scanner scanner = new Scanner(System.in);
     String fileName = "";
 
@@ -78,6 +87,14 @@ public class RM {
         }
         break;
       case 2:
+        this.stepMode = !this.stepMode;
+        if (this.stepMode) {
+          System.out.println("Switched to step mode");
+        } else {
+          System.out.println("Switched to user mode");
+        }
+        break;
+      case 3:
         this.on = false;
         break;
     }

@@ -162,6 +162,8 @@ public class VM {
       "7. Turn off VM"
     };
     while (true) {
+      String ip = new String(RM.getInstance().getIP());
+      System.out.println("Next command: " + ip + " " + getCommand());
       int userOption = getUserOption(mainOptions);
       switch (userOption) {
         case 1:
