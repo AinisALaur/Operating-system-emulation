@@ -1,5 +1,6 @@
 package org.example;
 
+// TODO: now printing in getMenu() we get 4 hex characters instead of 1
 public class Mapper {
   public static String toHex(int number) {
       if (number < Config.min_number_in_register || number > Config.max_number_in_register) {
