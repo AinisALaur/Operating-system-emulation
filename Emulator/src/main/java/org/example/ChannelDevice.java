@@ -103,5 +103,5 @@ public class ChannelDevice {
   }
 
   // TODO: xchg based on Channel Device's registers
-  public void xchg() { }
+  public void xchg() {}
 }
