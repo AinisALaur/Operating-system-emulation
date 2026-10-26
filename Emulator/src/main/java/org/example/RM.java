@@ -303,6 +303,7 @@ public class RM {
     }
   }
 
+  // TODO change to jg and jl
   public void ja(char x, char y) {
     if (cpu.getSF()[0] == '0' && cpu.getSF()[1] == '0') {
       cpu.setIP(new char[] {x, y});

@@ -23,13 +23,16 @@ public class Main {
       vm.loadDataToMemory();
 
       while (vm.isOn()) {
-        while (vm.test()) {
-          if (realMachine.getStepMode()) {
-            vm.getMenu();
-          }
-          vm.exec();
+        if (realMachine.getStepMode()) {
+          vm.getMenu();
         }
-        InterruptHandler.getInstance().handleInterrupt();
+        if (!vm.isOn()) {
+          break;
+        }
+        vm.exec();
+        if (vm.test()) {
+          InterruptHandler.getInstance().handleInterrupt();
+        }
       }
     }
   }

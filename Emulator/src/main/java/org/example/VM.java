@@ -195,7 +195,7 @@ public class VM {
         case 6:
           return;
         case 7:
-          RM.getInstance().setSI('3');
+          RM.getInstance().turnOffVM();
           return;
       }
     }
