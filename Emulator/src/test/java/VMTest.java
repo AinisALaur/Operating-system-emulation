@@ -126,7 +126,7 @@ public class VMTest {
     assertEquals('0', rm.getPI());
     assertEquals('0', rm.getSI());
     assertEquals("00", new String(rm.getIP()));
-    assertEquals('1', cpu.getMODE());
+    assertEquals('0', cpu.getMODE());
     assertEquals('F', rm.getTI());
   }
 

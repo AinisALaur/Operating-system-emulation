@@ -10,7 +10,7 @@ public class CPU {
   private char[] ip = {'0', '0'};
   private char[] sf = {'0', '0', '0', '0'};
   private char[] ptr = {'0', '0'};
-  private char mode = '1';
+  private char mode = '0';
   private char pi = '0';
   private char si = '0';
   private char ti = 'F';
@@ -135,14 +135,13 @@ public class CPU {
     ti = newTI;
   }
 
-  // Null's all registers. Maybe mode shouldn't be 1 by default?
   public void clearRegisters() {
     Arrays.fill(r0, '0');
     Arrays.fill(r1, '0');
     Arrays.fill(ip, '0');
     Arrays.fill(sf, '0');
     Arrays.fill(ptr, '0');
-    mode = '1';
+    mode = '0';
     pi = '0';
     si = '0';
     ti = 'F';
