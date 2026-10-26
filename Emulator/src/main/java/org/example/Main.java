@@ -13,6 +13,8 @@ public class Main {
       realMachine.setFileName(fileName);
       realMachine.loadToSupervisor();
       VM vm = realMachine.createVM();
+      realMachine.setCurrentVM(vm);
+
       if (vm == null) {
         continue;
       }
@@ -20,13 +22,18 @@ public class Main {
       realMachine.setIP(new char[] {'5', '0'}); // Points to data segment by default
       vm.loadDataToMemory();
 
-      while (vm.test()) {
+      while (vm.isOn()) {
         if (realMachine.getStepMode()) {
           vm.getMenu();
         }
+        if (!vm.isOn()) {
+          break;
+        }
         vm.exec();
+        if (vm.test()) {
+          InterruptHandler.getInstance().handleInterrupt();
+        }
       }
-      realMachine.turnOffVM();
     }
   }
 }

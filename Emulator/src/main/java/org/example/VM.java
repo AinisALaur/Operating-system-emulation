@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 public class VM {
   private int number;
+  private boolean on = true;
 
   public VM(int num) {
     if (num < 0 || num >= Config.VM_amount) {
@@ -11,6 +12,14 @@ public class VM {
           "VM number must be between 0 and " + (Config.VM_amount - 1) + ": " + num);
     }
     this.number = num;
+  }
+
+  public boolean isOn() {
+    return on;
+  }
+
+  public void setOn(boolean on) {
+    this.on = on;
   }
 
   public void loadDataToMemory() {
@@ -21,7 +30,7 @@ public class VM {
     int pi = RM.getInstance().getPI() - '0';
     int si = RM.getInstance().getSI() - '0';
     int ti = Mapper.toInt("" + RM.getInstance().getTI());
-    return !((pi + si) > 0 || ti == 0);
+    return ((pi + si) > 0 || ti == 0);
   }
 
   public void decrementTI() {
@@ -186,7 +195,7 @@ public class VM {
         case 6:
           return;
         case 7:
-          RM.getInstance().setSI('3');
+          RM.getInstance().turnOffVM();
           return;
       }
     }

@@ -101,4 +101,7 @@ public class ChannelDevice {
   public void setDT(char newDT) {
     dt[0] = newDT;
   }
+
+  // TODO: xchg based on Channel Device's registers
+  public void xchg() {}
 }
