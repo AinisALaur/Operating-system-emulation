@@ -191,8 +191,8 @@ public class RAM {
     while (supervisorPointer <= ramContent.length - Config.ram_word_size
         && ramContent[supervisorPointer] != ' ') {
       if (user < 0 || user > Config.VM_ram_size - Config.ram_word_size) {
-        RM.getInstance().setPI('1');
-        return;
+        throw new IndexOutOfBoundsException(
+            "User pointer out of bounds: " + user + ", VM RAM size: " + Config.VM_ram_size);
       }
       int userDataPointer = getPointerFromPTR(user, vm);
       String command =
@@ -214,15 +214,14 @@ public class RAM {
           x = Mapper.toInt(String.valueOf(command.charAt(1)));
           y = Mapper.toInt(String.valueOf(command.charAt(2)));
         } catch (IllegalArgumentException e) {
-          RM.getInstance().setPI('3');
-          return;
+          throw new IllegalArgumentException("Invalid pointer format in command: " + command, e);
         }
 
         int pointer = x * Config.block_size * Config.ram_word_size + y * Config.ram_word_size;
 
         if (pointer < 0 || pointer > Config.VM_ram_size - Config.ram_word_size) {
-          RM.getInstance().setPI('1');
-          return;
+          throw new IndexOutOfBoundsException(
+              "Pointer out of bounds: " + pointer + ", VM RAM size: " + Config.VM_ram_size);
         } else {
           user = pointer;
           supervisorPointer += Config.ram_word_size;

@@ -51,8 +51,7 @@ public class VM {
     try {
       pointer = Mapper.toInt(ipValue) * Config.ram_word_size;
     } catch (IllegalArgumentException e) {
-      RM.getInstance().setPI('3');
-      return "";
+      throw new IllegalArgumentException("Invalid IP value: " + ipValue, e);
     }
 
     String command = "";
@@ -70,7 +69,8 @@ public class VM {
       }
 
     } else {
-      RM.getInstance().setPI('1');
+      throw new IndexOutOfBoundsException(
+          "IP value out of bounds: " + ipValue + ", VM RAM size: " + Config.VM_ram_size);
     }
     return command;
   }
@@ -85,8 +85,7 @@ public class VM {
     try {
       wordIndex = Mapper.toInt(ipValue);
     } catch (IllegalArgumentException e) {
-      RM.getInstance().setPI('3');
-      return;
+      throw new IllegalArgumentException("Invalid IP value: " + ipValue, e);
     }
 
     int maxWordIndex = Config.VM_ram_size / Config.ram_word_size;

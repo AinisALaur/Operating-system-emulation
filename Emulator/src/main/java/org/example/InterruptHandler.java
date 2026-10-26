@@ -1,7 +1,5 @@
 package org.example;
 
-// TODO: currently some of the interrupt resisters(like PI) is set at incorrect places (please read
-// chapter 2.6)
 public class InterruptHandler {
   private static InterruptHandler instance = null;
 

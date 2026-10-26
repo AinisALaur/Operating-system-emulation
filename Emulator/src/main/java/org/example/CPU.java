@@ -44,14 +44,12 @@ public class CPU {
     return ip.clone();
   }
 
-  // Question: do we really need to set PI = 1 here?
   public void setIP(char[] newIP) {
     if (newIP == null
         || newIP.length != ip.length
         || Character.digit(newIP[0], 16) < 0
         || Character.digit(newIP[1], 16) < 0) {
-      setPI('1');
-      return;
+      throw new IllegalArgumentException("Invalid IP value");
     }
 
     ip[0] = newIP[0];
@@ -81,8 +79,7 @@ public class CPU {
   // The 17th block of each VM is reserved for the PTR table. Block saved as hex
   public void setPTR(int vmNum) {
     if (vmNum < 0 || vmNum >= Config.VM_amount) {
-      setPI('1');
-      return;
+      throw new IllegalArgumentException("Invalid VM number");
     }
 
     switch (vmNum) {

@@ -134,10 +134,8 @@ public class RM {
 
   public VM createVM() {
     if (!fileFound) {
-      cpu.setSI('1');
       return null;
     }
-    cpu.setSI('0');
     int currentVm = vmNum;
     vmNum = (vmNum + 1) % 3;
     return new VM(currentVm);
