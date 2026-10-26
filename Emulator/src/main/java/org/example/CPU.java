@@ -156,12 +156,4 @@ public class CPU {
       throw new IllegalArgumentException(register + " must be between 0 and 3");
     }
   }
-
-  // TODO: xchg based on Channel Device's registers
-  public void xchg() {
-    ChannelDevice channelDevice = ChannelDevice.getInstance();
-
-    switch (mode) {
-    }
-  }
 }
