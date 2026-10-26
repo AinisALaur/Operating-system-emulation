@@ -114,7 +114,9 @@ public class CPU {
   }
 
   public void setPI(char newPI) {
-    validateInterrupt(newPI, "PI");
+    if (newPI < '0' || newPI > '3') {
+      throw new IllegalArgumentException("PI must be between 0 and 3");
+    }
     pi = newPI;
   }
 
@@ -123,7 +125,9 @@ public class CPU {
   }
 
   public void setSI(char newSI) {
-    validateInterrupt(newSI, "SI");
+    if (newSI < '0' || newSI > '4') {
+      throw new IllegalArgumentException("SI must be between 0 and 3");
+    }
     si = newSI;
   }
 
@@ -145,11 +149,5 @@ public class CPU {
     pi = '0';
     si = '0';
     ti = 'F';
-  }
-
-  private static void validateInterrupt(char value, String register) {
-    if (value < '0' || value > '3') {
-      throw new IllegalArgumentException(register + " must be between 0 and 3");
-    }
   }
 }
