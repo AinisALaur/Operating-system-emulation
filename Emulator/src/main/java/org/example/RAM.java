@@ -135,13 +135,13 @@ public class RAM {
         }
 
         if (!foundStart) {
-          if (data.equals(Config.file_start)) {
+          if (data.equals(Config.program_start)) {
             foundStart = true;
           }
           continue;
         }
 
-        if (data.equals(Config.file_end)) {
+        if (data.equals(Config.program_end)) {
           break;
         }
 
