@@ -33,8 +33,6 @@ public class InterruptHandler {
     } else if (pi == '2') {
       System.out.println("Program interrupt: Invalid OP code");
     } else if (pi == '3') {
-      System.out.println("Program interrupt: Invalid assignment");
-    } else if (pi == '4') {
       System.out.println("Program interrupt: Invalid number");
     }
   }
@@ -48,6 +46,8 @@ public class InterruptHandler {
     } else if (si == '3') {
       System.out.println("Supervisor interrupt: HALT operation");
       RM.getInstance().turnOffVM();
+    } else if (si == '4') {
+      System.out.println("GOnx");
     }
   }
 
