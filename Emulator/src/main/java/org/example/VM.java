@@ -30,7 +30,7 @@ public class VM {
     int pi = RM.getInstance().getPI() - '0';
     int si = RM.getInstance().getSI() - '0';
     int ti = Mapper.toInt("" + RM.getInstance().getTI());
-    return !((pi + si) > 0 || ti == 0);
+    return ((pi + si) > 0 || ti == 0);
   }
 
   public void decrementTI() {
