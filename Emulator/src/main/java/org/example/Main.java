@@ -23,7 +23,7 @@ public class Main {
       vm.loadDataToMemory();
 
       while (vm.isOn()) {
-        if (realMachine.getStepMode()) {
+        if (realMachine.getSF()[2] == '1') {
           vm.getMenu();
         }
         if (!vm.isOn()) {

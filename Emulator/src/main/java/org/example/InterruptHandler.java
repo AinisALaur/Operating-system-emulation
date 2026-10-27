@@ -1,7 +1,5 @@
 package org.example;
 
-// TODO: currently some of the interrupt resisters(like PI) is set at incorrect places (please read
-// chapter 2.6)
 public class InterruptHandler {
   private static InterruptHandler instance = null;
 
@@ -13,6 +11,7 @@ public class InterruptHandler {
   }
 
   public void handleInterrupt() {
+    CPU.getInstance().setMODE('1');
     char pi = RM.getInstance().getPI();
     char si = RM.getInstance().getSI();
     char ti = RM.getInstance().getTI();
@@ -24,6 +23,7 @@ public class InterruptHandler {
     } else if (ti == '0') {
       handleTimerInterrupt();
     }
+    CPU.getInstance().setMODE('0');
   }
 
   // TODO: implement full handling

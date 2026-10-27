@@ -10,7 +10,7 @@ public class CPU {
   private char[] ip = {'0', '0'};
   private char[] sf = {'0', '0', '0', '0'};
   private char[] ptr = {'0', '0'};
-  private char mode = '1';
+  private char mode = '0';
   private char pi = '0';
   private char si = '0';
   private char ti = 'F';
@@ -44,14 +44,12 @@ public class CPU {
     return ip.clone();
   }
 
-  // Question: do we really need to set PI = 1 here?
   public void setIP(char[] newIP) {
     if (newIP == null
         || newIP.length != ip.length
         || Character.digit(newIP[0], 16) < 0
         || Character.digit(newIP[1], 16) < 0) {
-      setPI('1');
-      return;
+      throw new IllegalArgumentException("Invalid IP value");
     }
 
     ip[0] = newIP[0];
@@ -81,8 +79,7 @@ public class CPU {
   // The 17th block of each VM is reserved for the PTR table. Block saved as hex
   public void setPTR(int vmNum) {
     if (vmNum < 0 || vmNum >= Config.VM_amount) {
-      setPI('1');
-      return;
+      throw new IllegalArgumentException("Invalid VM number");
     }
 
     switch (vmNum) {
@@ -117,7 +114,9 @@ public class CPU {
   }
 
   public void setPI(char newPI) {
-    validateInterrupt(newPI, "PI");
+    if (newPI < '0' || newPI > '3') {
+      throw new IllegalArgumentException("PI must be between 0 and 3");
+    }
     pi = newPI;
   }
 
@@ -126,7 +125,9 @@ public class CPU {
   }
 
   public void setSI(char newSI) {
-    validateInterrupt(newSI, "SI");
+    if (newSI < '0' || newSI > '4') {
+      throw new IllegalArgumentException("SI must be between 0 and 3");
+    }
     si = newSI;
   }
 
@@ -138,22 +139,15 @@ public class CPU {
     ti = newTI;
   }
 
-  // Null's all registers. Maybe mode shouldn't be 1 by default?
   public void clearRegisters() {
     Arrays.fill(r0, '0');
     Arrays.fill(r1, '0');
     Arrays.fill(ip, '0');
     Arrays.fill(sf, '0');
     Arrays.fill(ptr, '0');
-    mode = '1';
+    mode = '0';
     pi = '0';
     si = '0';
     ti = 'F';
-  }
-
-  private static void validateInterrupt(char value, String register) {
-    if (value < '0' || value > '3') {
-      throw new IllegalArgumentException(register + " must be between 0 and 3");
-    }
   }
 }

@@ -103,5 +103,20 @@ public class ChannelDevice {
   }
 
   // TODO: xchg based on Channel Device's registers
-  public void xchg() {}
+  // currently suggested function signatures, though probably logical
+  public void xchg() {
+    if (st[0] == '1' && dt[0] == '3') { // user memory -> output stream
+      // TODO: func moveUserOutput(char[] sb, char[] ff, char[] bl);
+    } else if (st[0] == '2' && dt[0] == '1') { // supervisor memory -> user memory
+      // TODO: func moveSupervisorUser(char[] sb = supervisor block, char[] db = vm memory block,
+      // char[] bl = block size in bytes);
+    } else if (st[0] == '3' && dt[0] == '2') { // hdd -> supervisor memory
+      // TODO: func moveDiskSupervisor(char[] db, char[] fn);
+    } else if (st[0] == '4' && dt[0] == '1') { // input stream -> user memory
+      // TODO: moveInputUser(); should read and put read decimal number in valid range as hex in R1
+    } else {
+      throw new IllegalArgumentException(
+          "Invalid source and destination object pairs: ST = " + st[0] + ", DT = " + dt[0]);
+    }
+  }
 }
