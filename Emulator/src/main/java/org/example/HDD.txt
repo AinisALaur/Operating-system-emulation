@@ -2,12 +2,13 @@
 abcd
 $RJG
 $00$
-0001
-0001
+0008
+abcd
+efgh
 $50$
 LD00
 SWAP
-LD01
+P500
 HALT
 $END
 ----
