@@ -36,6 +36,13 @@ public class RAM {
         + ramContent[pointer + 3];
   }
 
+  public char getByte(int pointer) {
+    if (pointer < 0 || pointer >= ramContent.length) {
+      throw new IndexOutOfBoundsException("RAM pointer out of bounds: " + pointer);
+    }
+    return ramContent[pointer];
+  }
+
   public int getPointerFromPTR(int pointer, int vm) {
     validateVm(vm);
     if (pointer < 0 || pointer >= Config.VM_ram_size) {

@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class ChannelDevice {
   private static ChannelDevice instance = null;
@@ -36,12 +37,12 @@ public class ChannelDevice {
     db[0] = newDB;
   }
 
-  // Should return char[] for consistency
+  // Maybe change to return char[] for consistency
   public String getFN() {
     return new String(fn).trim();
   }
 
-  // Should use char[] as a parameter for consistency
+  // Maybe change to use char[] as a parameter for consistency
   public void setFN(String fileName) {
     if (fileName == null || fileName.isBlank() || fileName.length() > fn.length) {
       throw new IllegalArgumentException(
@@ -105,18 +106,65 @@ public class ChannelDevice {
   // TODO: xchg based on Channel Device's registers
   // currently suggested function signatures, though probably logical
   public void xchg() {
-    if (st[0] == '1' && dt[0] == '3') { // user memory -> output stream
-      // TODO: func moveUserOutput(char[] sb, char[] ff, char[] bl);
-    } else if (st[0] == '2' && dt[0] == '1') { // supervisor memory -> user memory
-      // TODO: func moveSupervisorUser(char[] sb = supervisor block, char[] db = vm memory block,
+    if (st[0] == '1' && dt[0] == '3') {
+      moveUserOutput(); // user memory -> output stream
+    } else if (st[0] == '2' && dt[0] == '1') {
+      // supervisor memory -> user memory
+      // TODO: @Ainis func moveSupervisorUser(char[] sb = supervisor block, char[] db = vm memory
+      // block,
       // char[] bl = block size in bytes);
-    } else if (st[0] == '3' && dt[0] == '2') { // hdd -> supervisor memory
-      // TODO: func moveDiskSupervisor(char[] db, char[] fn);
-    } else if (st[0] == '4' && dt[0] == '1') { // input stream -> user memory
-      // TODO: moveInputUser(); should read and put read decimal number in valid range as hex in R1
+    } else if (st[0] == '3' && dt[0] == '2') {
+      // hdd -> supervisor memory
+      // TODO: @Ainis func moveDiskSupervisor(char[] db, char[] fn);
+    } else if (st[0] == '4' && dt[0] == '1') {
+      moveInputUser(); // input stream -> user memory (actually register R1)
     } else {
       throw new IllegalArgumentException(
           "Invalid source and destination object pairs: ST = " + st[0] + ", DT = " + dt[0]);
     }
+  }
+
+  private void moveInputUser() {
+    Scanner scanner = new Scanner(System.in);
+
+    while (true) {
+      System.out.print(
+          "Enter a number between "
+              + Config.min_number_in_register
+              + " and "
+              + Config.max_number_in_register
+              + ": ");
+
+      String input = scanner.nextLine().trim();
+      try {
+        int number = Integer.parseInt(input);
+        CPU.getInstance().setR1(Mapper.toHex(number).toCharArray());
+        return;
+      } catch (IllegalArgumentException e) {
+        System.out.println("Invalid number, try again.");
+      }
+    }
+  }
+
+  private void moveUserOutput() {
+    VM currentVM = RM.getInstance().getCurrentVM();
+    if (currentVM == null) {
+      throw new IllegalStateException("Cannot output memory without a current VM");
+    }
+
+    int sourceBlock = Mapper.toInt(String.valueOf(getSB()));
+    int byteOffset = Mapper.toInt(new String(getFF()));
+    int byteLength = Mapper.toInt(new String(getBL()));
+    int blockByteSize = Config.block_size * Config.ram_word_size;
+
+    int virtualPointer = sourceBlock * blockByteSize + byteOffset;
+    int bytesAvailable = Config.VM_ram_size - virtualPointer;
+    int outputLength = Math.min(byteLength, bytesAvailable);
+    StringBuilder output = new StringBuilder(outputLength);
+    for (int i = 0; i < outputLength; ++i) {
+      int realPointer = RM.getInstance().getVmPointer(virtualPointer + i, currentVM.getNumber());
+      output.append(RAM.getInstance().getByte(realPointer));
+    }
+    System.out.println(output);
   }
 }

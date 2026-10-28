@@ -321,11 +321,25 @@ public class RM {
     }
   }
 
-  public void getD() {}
+  public void getD() {
+    cpu.setSI('1');
+  }
 
-  public void p(char x, char y, char z) {}
+  // TODO: check that parameters are valid hex digits, if not set PI = 1.
+  // especially check that length in R1 <= 0xFF, if not set PI = 1
+  public void p(char x, char y, char z) {
+    cpu.setSI('2');
+    InterruptHandler.getInstance().setX(x);
+    InterruptHandler.getInstance().setY(y);
+    InterruptHandler.getInstance().setZ(z);
+    InterruptHandler.getInstance().setB(cpu.getR1());
+  }
 
-  public void gon(char x) {}
+  // TODO: check that parameter is from data segment, if not set PI = 1
+  public void gon(char x) {
+    cpu.setSI('4');
+    InterruptHandler.getInstance().setX(x);
+  }
 
   public void halt() {
     cpu.setSI('3');

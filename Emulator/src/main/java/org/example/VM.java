@@ -22,6 +22,10 @@ public class VM {
     this.on = on;
   }
 
+  public int getNumber() {
+    return number;
+  }
+
   public void loadDataToMemory() {
     RM.getInstance().loadUserData(this.number);
   }
@@ -39,8 +43,24 @@ public class VM {
     realMachine.setTI(Character.toUpperCase(Character.forDigit(Math.max(0, ti - 1), 16)));
   }
 
-  // maybe this comment is old now??
-  // prints commands in the code segment, later should set its IP and move along it
+  private void incrementIP() {
+    String ipValue = new String(RM.getInstance().getIP());
+    if (ipValue.isBlank()) {
+      return;
+    }
+
+    int wordIndex;
+    try {
+      wordIndex = Mapper.toInt(ipValue);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Invalid IP value: " + ipValue, e);
+    }
+
+    int maxWordIndex = Config.VM_ram_size / Config.ram_word_size;
+    int newWordIndex = wordIndex + 1 >= maxWordIndex ? 0 : wordIndex + 1;
+    RM.getInstance().setIP(String.format("%02X", newWordIndex).toCharArray());
+  }
+
   public String getCommand() {
     String ipValue = new String(RM.getInstance().getIP());
     if (ipValue.isBlank()) {
@@ -75,24 +95,6 @@ public class VM {
     return command;
   }
 
-  private void incrementIP() {
-    String ipValue = new String(RM.getInstance().getIP());
-    if (ipValue.isBlank()) {
-      return;
-    }
-
-    int wordIndex;
-    try {
-      wordIndex = Mapper.toInt(ipValue);
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("Invalid IP value: " + ipValue, e);
-    }
-
-    int maxWordIndex = Config.VM_ram_size / Config.ram_word_size;
-    int newWordIndex = wordIndex + 1 >= maxWordIndex ? 0 : wordIndex + 1;
-    RM.getInstance().setIP(String.format("%02X", newWordIndex).toCharArray());
-  }
-
   private void printHelper(int[] blocks) {
     System.out.println("-------------------------");
     for (int block : blocks) {
@@ -122,7 +124,7 @@ public class VM {
     printHelper(new int[] {4});
   }
 
-  // Blocks [5; 16]
+  // Blocks [5; 15]
   private void printCS() {
     printHelper(new int[] {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
   }
@@ -249,12 +251,12 @@ public class VM {
         realMachine.getD();
         incrementIP();
       }
-      case String op when op.startsWith("GON") -> {
-        realMachine.gon(op.charAt(3));
-        incrementIP();
-      }
       case String op when op.charAt(0) == 'P' -> {
         realMachine.p(op.charAt(1), op.charAt(2), op.charAt(3));
+        incrementIP();
+      }
+      case String op when op.startsWith("GON") -> {
+        realMachine.gon(op.charAt(3));
         incrementIP();
       }
       case "HALT" -> realMachine.halt();
