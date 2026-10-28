@@ -22,6 +22,11 @@ public class VM {
     this.on = on;
   }
 
+  public int getNumber() {
+    return number;
+  }
+
+
   public void loadDataToMemory() {
     RM.getInstance().loadUserData(this.number);
   }
@@ -39,7 +44,7 @@ public class VM {
     realMachine.setTI(Character.toUpperCase(Character.forDigit(Math.max(0, ti - 1), 16)));
   }
 
-    private void incrementIP() {
+  private void incrementIP() {
     String ipValue = new String(RM.getInstance().getIP());
     if (ipValue.isBlank()) {
       return;
@@ -247,12 +252,12 @@ public class VM {
         realMachine.getD();
         incrementIP();
       }
-      case String op when op.startsWith("GON") -> {
-        realMachine.gon(op.charAt(3));
-        incrementIP();
-      }
       case String op when op.charAt(0) == 'P' -> {
         realMachine.p(op.charAt(1), op.charAt(2), op.charAt(3));
+        incrementIP();
+      }
+      case String op when op.startsWith("GON") -> {
+        realMachine.gon(op.charAt(3));
         incrementIP();
       }
       case "HALT" -> realMachine.halt();
