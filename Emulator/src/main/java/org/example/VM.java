@@ -26,7 +26,6 @@ public class VM {
     return number;
   }
 
-
   public void loadDataToMemory() {
     RM.getInstance().loadUserData(this.number);
   }

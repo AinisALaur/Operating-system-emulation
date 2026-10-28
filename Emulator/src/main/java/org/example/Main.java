@@ -5,7 +5,8 @@ public class Main {
     RM realMachine = RM.getInstance();
 
     while (realMachine.isOn()) {
-      String fileName = realMachine.getMenu();  // currently user/step mode is configured for RM, not per VM, maybe it's fine
+      // currently user/step mode is configured for RM, not per VM, maybe it's fine
+      String fileName = realMachine.getMenu();
       if (fileName.isEmpty()) {
         continue;
       }
