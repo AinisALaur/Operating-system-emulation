@@ -33,7 +33,7 @@ public class VMTest {
 
   private static void loadFileToSupervisor(String fileName) {
     RM.getInstance();
-    ChannelDevice.getInstance().setFN(fileName);
+    ChannelDevice.getInstance().setFN(fileName.toCharArray());
     RAM.getInstance().loadToSupervisor();
   }
 
@@ -172,10 +172,10 @@ public class VMTest {
     ChannelDevice channelDevice = ChannelDevice.getInstance();
 
     assertThrows(IllegalArgumentException.class, () -> channelDevice.setFN(null));
-    assertThrows(IllegalArgumentException.class, () -> channelDevice.setFN(""));
-    assertThrows(IllegalArgumentException.class, () -> channelDevice.setFN("abcde"));
+    assertThrows(IllegalArgumentException.class, () -> channelDevice.setFN(new char[0]));
+    assertThrows(IllegalArgumentException.class, () -> channelDevice.setFN("abcde".toCharArray()));
 
-    channelDevice.setFN("a");
-    assertEquals("a", channelDevice.getFN());
+    channelDevice.setFN("a".toCharArray());
+    assertEquals("a", new String(channelDevice.getFN()).trim());
   }
 }

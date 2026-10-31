@@ -37,22 +37,18 @@ public class ChannelDevice {
     db[0] = newDB;
   }
 
-  // Maybe change to return char[] for consistency
-  public String getFN() {
-    return new String(fn).trim();
+  public char[] getFN() {
+    return fn.clone();
   }
 
-  // Maybe change to use char[] as a parameter for consistency
-  public void setFN(String fileName) {
-    if (fileName == null || fileName.isBlank() || fileName.length() > fn.length) {
+  public void setFN(char[] newFN) {
+    if (newFN == null || newFN.length == 0 || newFN.length > fn.length) {
       throw new IllegalArgumentException(
           "File name must contain between 1 and " + fn.length + " characters");
     }
 
     Arrays.fill(fn, ' ');
-    for (int i = 0; i < fileName.length(); ++i) {
-      fn[i] = fileName.charAt(i);
-    }
+    System.arraycopy(newFN, 0, fn, 0, newFN.length);
   }
 
   public char[] getFF() {

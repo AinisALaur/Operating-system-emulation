@@ -11,7 +11,7 @@ public class Main {
         continue;
       }
 
-      realMachine.setFileName(fileName);
+      realMachine.setFileName(fileName.toCharArray());
       realMachine.loadToSupervisor();
       VM vm = realMachine.createVM();
       realMachine.setCurrentVM(vm);

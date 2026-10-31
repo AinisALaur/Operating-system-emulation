@@ -119,8 +119,8 @@ public class RM {
     ram.loadData(vm);
   }
 
-  public void setFileName(String fileName) {
-    if (fileName.isEmpty()) {
+  public void setFileName(char[] fileName) {
+    if (fileName == null || fileName.length == 0) {
       return;
     }
 

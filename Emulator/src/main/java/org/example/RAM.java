@@ -122,7 +122,7 @@ public class RAM {
 
   public void loadToSupervisor() {
     String hdd = RM.geHDD();
-    String fileName = ChannelDevice.getInstance().getFN();
+    String fileName = new String(ChannelDevice.getInstance().getFN()).trim();
 
     int pointer = Config.supervisor_first_block * Config.block_size * Config.ram_word_size;
     boolean foundFile = false;
