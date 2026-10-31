@@ -56,8 +56,7 @@ public class VM {
       throw new IllegalArgumentException("Invalid IP value: " + ipValue, e);
     }
 
-    int maxWordIndex = Config.VM_ram_size / Config.ram_word_size;
-    int newWordIndex = wordIndex + 1 >= maxWordIndex ? 0 : wordIndex + 1;
+    int newWordIndex = wordIndex + 1 >= Config.maxWordIndex ? 0 : wordIndex + 1;
     RM.getInstance().setIP(String.format("%02X", newWordIndex).toCharArray());
   }
 
