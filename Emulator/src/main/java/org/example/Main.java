@@ -11,19 +11,13 @@ public class Main {
         continue;
       }
 
-      realMachine.setFileName(fileName.toCharArray());
-      realMachine.loadToSupervisor();
+      realMachine.loadToSupervisor(fileName);
       VM vm = realMachine.createVM();
-      realMachine.setCurrentVM(vm);
-
-      // maybe setCurrentVM(), setIP() should be inside createVM() ?
-      // loadToSupervisor, loadToMemory needs to be done through ChannelDevice
 
       if (vm == null) {
         continue;
       }
 
-      realMachine.setIP(new char[] {'5', '0'}); // Points to code segment by default
       vm.loadDataToMemory();
 
       while (vm.isOn()) {

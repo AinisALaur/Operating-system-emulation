@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class RM {
@@ -8,22 +10,55 @@ public class RM {
   private CPU cpu = CPU.getInstance();
   private ChannelDevice channelDevice = ChannelDevice.getInstance();
   private boolean on = true;
-  private int vmNum = 0;
   private VM currentVM = null;
   private static RM instance = null;
   private boolean fileFound = false;
+  private static ArrayList<Integer> availableBlocks = null;
+  private final ArrayList<Integer> blocksInUse = new ArrayList<>();
 
   private RM() {}
 
   public static RM getInstance() {
     if (instance == null) {
       instance = new RM();
+      availableBlocks = null;
+      inicializeRandomQueue();
     }
     return instance;
   }
 
-  public void setCurrentVM(VM vm) {
-    this.currentVM = vm;
+  // Creates an array of [0; 50] and shuffles randomly, this is used for allocating 17 blocks for a
+  // VM
+  private static void inicializeRandomQueue() {
+    availableBlocks = new ArrayList<>();
+    for (int i = 0; i < Config.user_block_amount; ++i) {
+      availableBlocks.add(i);
+    }
+
+    Random random = new Random();
+    for (int i = availableBlocks.size() - 1; i > 0; --i) {
+      int j = random.nextInt(i + 1);
+      int temp = availableBlocks.get(i);
+      availableBlocks.set(i, availableBlocks.get(j));
+      availableBlocks.set(j, temp);
+    }
+  }
+
+  // returns the next available block in HEX
+  public String getNextAvailableBlock() {
+    if (availableBlocks.isEmpty()) {
+      throw new IllegalStateException("No available memory blocks left");
+    }
+
+    int block = availableBlocks.removeLast();
+    blocksInUse.add(block);
+    return Mapper.toHex(block)
+        .substring(2, 4); // toHex returns a String of 4 chars, but PTR only has 2 bytes
+  }
+
+  private void releaseVmBlocks() {
+    availableBlocks.addAll(blocksInUse);
+    blocksInUse.clear();
   }
 
   public VM getCurrentVM() {
@@ -32,8 +67,14 @@ public class RM {
 
   // This will have more logic when multiple vm's will be running
   public void turnOffVM() {
+    if (currentVM == null) {
+      return;
+    }
+
+    releaseVmBlocks();
     currentVM.setOn(false);
     setFileFoundState();
+    currentVM = null;
   }
 
   public void setFileFoundState() {
@@ -62,16 +103,6 @@ public class RM {
       }
       System.out.println("Invalid option, try again.");
     }
-  }
-
-  // Cast vm's pointer to real location pointer in memory
-  public int getVmPointer(int pointer, int vm) {
-    return RAM.getInstance().getPointerFromPTR(pointer, vm);
-  }
-
-  // Returns the word at a specific block and word
-  public String getWord(int block, int word) {
-    return ram.getWord(block, word);
   }
 
   public String getMenu() {
@@ -114,30 +145,42 @@ public class RM {
     return fileName;
   }
 
+  // Cast vm's pointer to real location pointer in memory
+  public int getVmPointer(int pointer) {
+    return RAM.getInstance().getPointerFromPTR(pointer);
+  }
+
   // Fills the vm's user memory
-  public void loadUserData(int vm) {
-    ram.loadData(vm);
+  public void loadUserData() {
+    cpu.setPTR();
+    ram.fillPtrTable();
+
+    channelDevice.setST('2');
+    channelDevice.setDT('1');
+    channelDevice.setSB(String.format("%02X", Config.supervisor_first_block).toCharArray());
+    channelDevice.setDB(
+        String.format(
+                "%02X", Config.code_segment_start / (Config.block_size * Config.ram_word_size))
+            .toCharArray());
+    channelDevice.xchg();
   }
 
-  public void setFileName(char[] fileName) {
-    if (fileName == null || fileName.length == 0) {
-      return;
-    }
-
-    channelDevice.setFN(fileName);
-  }
-
-  public void loadToSupervisor() {
-    ram.loadToSupervisor();
+  public void loadToSupervisor(String fileName) {
+    channelDevice.setFN(fileName.toCharArray());
+    channelDevice.setST('3');
+    channelDevice.setDT('2');
+    channelDevice.setDB(String.format("%02X", Config.supervisor_first_block).toCharArray());
+    channelDevice.xchg();
   }
 
   public VM createVM() {
     if (!fileFound) {
       return null;
     }
-    int currentVm = vmNum;
-    vmNum = (vmNum + 1) % 3;
-    return new VM(currentVm);
+    VM vm = new VM();
+    RM.getInstance().setIP(new char[] {'5', '0'});
+    this.currentVM = vm;
+    return vm;
   }
 
   public void clearRegisters() {
@@ -216,11 +259,39 @@ public class RM {
     System.out.println("-------------------------");
   }
 
-  public void ld(char x, char y) {
-    cpu.setR0(getWord(Character.digit(x, 16), Character.digit(y, 16)).toCharArray());
+  public void printMemory() {
+    ram.printMemory();
   }
 
-  public void st(char x, char y) {}
+  public void ld(char x, char y) {
+    int virtualBlock = Character.digit(x, 16);
+    int virtualWord = Character.digit(y, 16);
+    if (virtualBlock < 0 || virtualWord < 0 || virtualWord >= Config.block_size) {
+      setPI('1');
+      return;
+    }
+
+    int virtualPointer =
+        virtualBlock * Config.block_size * Config.ram_word_size
+            + virtualWord * Config.ram_word_size;
+    int realPointer = getVmPointer(virtualPointer);
+    cpu.setR0(ram.readWordAt(realPointer).toCharArray());
+  }
+
+  public void st(char x, char y) {
+    int virtualBlock = Character.digit(x, 16);
+    int virtualWord = Character.digit(y, 16);
+    if (virtualBlock < 0 || virtualWord < 0 || virtualWord >= Config.block_size) {
+      setPI('1');
+      return;
+    }
+
+    int virtualPointer =
+        virtualBlock * Config.block_size * Config.ram_word_size
+            + virtualWord * Config.ram_word_size;
+    int realPointer = getVmPointer(virtualPointer);
+    ram.writeWordAt(realPointer, new String(cpu.getR0()));
+  }
 
   public void swap() {
     char[] temp = cpu.getR0();

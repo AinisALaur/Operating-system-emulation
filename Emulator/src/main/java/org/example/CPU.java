@@ -71,31 +71,14 @@ public class CPU {
     sf[idx] = value;
   }
 
-  // Curent VM's PTR table location
+  // Current VM's PTR table location
   public char[] getPTR() {
     return ptr.clone();
   }
 
-  // The 17th block of each VM is reserved for the PTR table. Block saved as hex
-  public void setPTR(int vmNum) {
-    if (vmNum < 0 || vmNum >= Config.VM_amount) {
-      throw new IllegalArgumentException("Invalid VM number");
-    }
-
-    switch (vmNum) {
-      case 0: // block 48 in dec
-        ptr[0] = '3';
-        ptr[1] = '0';
-        break;
-      case 1: // block 49 in dec
-        ptr[0] = '3';
-        ptr[1] = '1';
-        break;
-      case 2: // block 50 in dec
-        ptr[0] = '3';
-        ptr[1] = '2';
-        break;
-    }
+  // The PTR table block for the current VM. Block saved as hex
+  public void setPTR() {
+    ptr = RM.getInstance().getNextAvailableBlock().toCharArray();
   }
 
   public char getMODE() {

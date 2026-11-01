@@ -12,3 +12,17 @@ P500
 HALT
 $END
 ----
+----
+efgh
+$RJG
+$00$
+0008
+abcd
+efgh
+$50$
+LD00
+SWAP
+P500
+HALT
+$END
+----
