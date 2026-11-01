@@ -9,6 +9,7 @@ public class Config {
   public static final int supervisor_block_amount = 16;
   public static final int supervisor_first_block = 51;
   public static final String outer_disk_file_name = "src/main/java/org/example/HDD.txt";
+  public static final String hdd_separator = "----";
   public static final String program_start = "$RJG";
   public static final String program_end = "$END";
   public static final int code_segment_start = 320;
