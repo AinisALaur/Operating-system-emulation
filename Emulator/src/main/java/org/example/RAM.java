@@ -36,6 +36,13 @@ public class RAM {
         + ramContent[pointer + 3];
   }
 
+  public char getByte(int pointer) {
+    if (pointer < 0 || pointer >= ramContent.length) {
+      throw new IndexOutOfBoundsException("RAM pointer out of bounds: " + pointer);
+    }
+    return ramContent[pointer];
+  }
+
   public int getPointerFromPTR(int pointer, int vm) {
     validateVm(vm);
     if (pointer < 0 || pointer >= Config.VM_ram_size) {
@@ -115,7 +122,7 @@ public class RAM {
 
   public void loadToSupervisor() {
     String hdd = RM.geHDD();
-    String fileName = ChannelDevice.getInstance().getFN();
+    String fileName = new String(ChannelDevice.getInstance().getFN()).trim();
 
     int pointer = Config.supervisor_first_block * Config.block_size * Config.ram_word_size;
     boolean foundFile = false;

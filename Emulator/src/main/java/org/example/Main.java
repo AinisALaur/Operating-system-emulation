@@ -5,21 +5,25 @@ public class Main {
     RM realMachine = RM.getInstance();
 
     while (realMachine.isOn()) {
+      // currently user/step mode is configured for RM, not per VM, maybe it's fine
       String fileName = realMachine.getMenu();
       if (fileName.isEmpty()) {
         continue;
       }
 
-      realMachine.setFileName(fileName);
+      realMachine.setFileName(fileName.toCharArray());
       realMachine.loadToSupervisor();
       VM vm = realMachine.createVM();
       realMachine.setCurrentVM(vm);
+
+      // maybe setCurrentVM(), setIP() should be inside createVM() ?
+      // loadToSupervisor, loadToMemory needs to be done through ChannelDevice
 
       if (vm == null) {
         continue;
       }
 
-      realMachine.setIP(new char[] {'5', '0'}); // Points to data segment by default
+      realMachine.setIP(new char[] {'5', '0'}); // Points to code segment by default
       vm.loadDataToMemory();
 
       while (vm.isOn()) {
