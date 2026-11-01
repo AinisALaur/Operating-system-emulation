@@ -3,16 +3,7 @@ package org.example;
 import java.util.Scanner;
 
 public class VM {
-  private int number;
   private boolean on = true;
-
-  public VM(int num) {
-    if (num < 0 || num >= Config.VM_amount) {
-      throw new IllegalArgumentException(
-          "VM number must be between 0 and " + (Config.VM_amount - 1) + ": " + num);
-    }
-    this.number = num;
-  }
 
   public boolean isOn() {
     return on;
@@ -22,12 +13,8 @@ public class VM {
     this.on = on;
   }
 
-  public int getNumber() {
-    return number;
-  }
-
   public void loadDataToMemory() {
-    RM.getInstance().loadUserData(this.number);
+    RM.getInstance().loadUserData();
   }
 
   public boolean test() {
@@ -75,12 +62,9 @@ public class VM {
 
     String command = "";
     if (pointer >= 0 && pointer <= Config.VM_ram_size - Config.ram_word_size) {
-      int realPointer = RM.getInstance().getVmPointer(pointer, this.number);
+      int realPointer = RM.getInstance().getVmPointer(pointer);
 
-      int realBlock = realPointer / (Config.block_size * Config.ram_word_size);
-      int realWord = realPointer % (Config.block_size * Config.ram_word_size) / 4;
-
-      String word = RM.getInstance().getWord(realBlock, realWord);
+      String word = RAM.getInstance().readWordAt(realPointer);
       if (!word.trim().isEmpty()) {
         command = word;
       } else {
@@ -99,11 +83,8 @@ public class VM {
     for (int block : blocks) {
       for (int i = 0; i < Config.block_size; ++i) {
         int pointer = block * Config.block_size * Config.ram_word_size + i * Config.ram_word_size;
-        int realPointer = RM.getInstance().getVmPointer(pointer, this.number);
-        int realBlock = realPointer / (Config.block_size * Config.ram_word_size);
-        int realWord =
-            realPointer % (Config.block_size * Config.ram_word_size) / Config.ram_word_size;
-        String word = RM.getInstance().getWord(realBlock, realWord);
+        int realPointer = RM.getInstance().getVmPointer(pointer);
+        String word = RAM.getInstance().readWordAt(realPointer);
         if (!word.trim().isEmpty()) {
           System.out.println(
               Mapper.formatDisplayHex(block) + " " + Mapper.formatDisplayHex(i) + " " + word);
@@ -132,12 +113,13 @@ public class VM {
     int block = Mapper.toInt(new String(RM.getInstance().getPTR()));
     System.out.println("-------------------------");
     for (int i = 0; i < Config.block_size; ++i) {
+      int pointer = block * Config.block_size * Config.ram_word_size + i * Config.ram_word_size;
       System.out.println(
           Mapper.formatDisplayHex(block)
               + " "
               + Mapper.formatDisplayHex(i)
               + " "
-              + RM.getInstance().getWord(block, i));
+              + RAM.getInstance().readWordAt(pointer));
     }
     System.out.println("-------------------------");
   }
@@ -169,8 +151,9 @@ public class VM {
       "3. Show code segment",
       "4. Show PTR",
       "5. Show all RM registers",
-      "6. Exec next command",
-      "7. Turn off VM"
+      "6. Show RM memory",
+      "7. Exec next command",
+      "8. Turn off VM"
     };
     while (true) {
       String ip = new String(RM.getInstance().getIP());
@@ -193,8 +176,11 @@ public class VM {
           RM.getInstance().printAllCPURegisters();
           break;
         case 6:
-          return;
+          RM.getInstance().printMemory();
+          break;
         case 7:
+          return;
+        case 8:
           RM.getInstance().turnOffVM();
           return;
       }
