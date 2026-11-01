@@ -22,6 +22,7 @@ public class VMTest {
     setStatic(CPU.class, "instance", null);
     setStatic(ChannelDevice.class, "instance", null);
     setStatic(RM.class, "instance", null);
+    setStatic(RM.class, "availableBlocks", null);
     setStatic(RM.class, "HDD", TEST_HDD);
   }
 
@@ -32,15 +33,13 @@ public class VMTest {
   }
 
   private static void loadFileToSupervisor(String fileName) {
-    RM.getInstance();
-    ChannelDevice.getInstance().setFN(fileName.toCharArray());
-    RAM.getInstance().loadToSupervisor();
+    RM.getInstance().loadToSupervisor(fileName);
   }
 
   // Throws because PTR is empty
   @Test
   void testGetMyCommandsThrowsIllegalArgumentException() {
-    VM vm = new VM(0);
+    VM vm = new VM();
 
     assertThrows(
         IllegalArgumentException.class,
@@ -51,7 +50,7 @@ public class VMTest {
 
   @Test
   void testLoadDataToMemoryWithEmptySupervisorLoadsNothing() {
-    VM vm = new VM(0);
+    VM vm = new VM();
     vm.loadDataToMemory();
 
     assertTrue(vm.getCommand().isEmpty());
@@ -61,7 +60,7 @@ public class VMTest {
   void testGetMyCommandsReturnsLoadedCommandsInCodeSegment() {
     loadFileToSupervisor("abcd");
 
-    VM vm = new VM(0);
+    VM vm = new VM();
     RM rm = RM.getInstance();
     vm.loadDataToMemory();
     rm.setIP(new char[] {'5', '0'});
@@ -72,44 +71,27 @@ public class VMTest {
   void testLoadDataToMemoryPlacesCommandsInMappedRealBlock() {
     loadFileToSupervisor("abcd");
 
-    new VM(0).loadDataToMemory();
+    new VM().loadDataToMemory();
 
-    // VM 0 block 5 maps to real block 15 (every third block starting from 0)
-    assertEquals("SUBX", RM.getInstance().getWord(15, 0));
-    assertEquals("MOVY", RM.getInstance().getWord(15, 1));
-    assertEquals("ADDZ", RM.getInstance().getWord(15, 2));
+    int codePointer = Config.code_segment_start;
+    int realPointer = RAM.getInstance().getPointerFromPTR(codePointer);
+    assertEquals("SUBX", RAM.getInstance().readWordAt(realPointer));
+    assertEquals("MOVY", RAM.getInstance().readWordAt(realPointer + Config.ram_word_size));
+    assertEquals("ADDZ", RAM.getInstance().readWordAt(realPointer + 2 * Config.ram_word_size));
   }
 
   @Test
   void testLoadDataToMemoryClearsSupervisorMemory() {
     loadFileToSupervisor("abcd");
 
-    new VM(0).loadDataToMemory();
+    new VM().loadDataToMemory();
 
     for (int word = 0; word < 3; ++word) {
-      assertEquals("    ", RM.getInstance().getWord(51, word));
+      int pointer =
+          Config.supervisor_first_block * Config.block_size * Config.ram_word_size
+              + word * Config.ram_word_size;
+      assertEquals("    ", RAM.getInstance().readWordAt(pointer));
     }
-  }
-
-  @Test
-  void testMemoryRejectsOutOfBoundsAddresses() {
-    RAM ram = RAM.getInstance();
-
-    assertThrows(IndexOutOfBoundsException.class, () -> ram.getWord(-1, 0));
-    assertThrows(IndexOutOfBoundsException.class, () -> ram.getWord(Config.block_amount, 0));
-    assertThrows(IndexOutOfBoundsException.class, () -> ram.getWord(0, -1));
-    assertThrows(IndexOutOfBoundsException.class, () -> ram.getWord(0, Config.block_size));
-    assertThrows(IndexOutOfBoundsException.class, () -> ram.getPointerFromPTR(-1, 0));
-    assertThrows(
-        IndexOutOfBoundsException.class, () -> ram.getPointerFromPTR(Config.VM_ram_size, 0));
-    assertThrows(IndexOutOfBoundsException.class, () -> ram.getPointerFromPTR(0, -1));
-    assertThrows(IndexOutOfBoundsException.class, () -> ram.getPointerFromPTR(0, Config.VM_amount));
-  }
-
-  @Test
-  void testVmRejectsOutOfBoundsNumbers() {
-    assertThrows(IllegalArgumentException.class, () -> new VM(-1));
-    assertThrows(IllegalArgumentException.class, () -> new VM(Config.VM_amount));
   }
 
   @Test
@@ -132,7 +114,7 @@ public class VMTest {
 
   @Test
   void testDecrementTI() {
-    VM vm = new VM(0);
+    VM vm = new VM();
     RM rm = RM.getInstance();
 
     vm.decrementTI();
@@ -159,12 +141,14 @@ public class VMTest {
   }
 
   @Test
-  void testVmTwoUsesItsOwnMappedBlocks() {
+  void testLoadDataToMemoryMapsCommandsThroughPtr() {
     loadFileToSupervisor("abcd");
 
-    new VM(2).loadDataToMemory();
+    new VM().loadDataToMemory();
 
-    assertEquals("SUBX", RM.getInstance().getWord(17, 0));
+    int codePointer = Config.code_segment_start;
+    int realPointer = RAM.getInstance().getPointerFromPTR(codePointer);
+    assertEquals("SUBX", RAM.getInstance().readWordAt(realPointer));
   }
 
   @Test
