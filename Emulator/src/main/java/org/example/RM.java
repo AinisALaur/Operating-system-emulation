@@ -73,12 +73,12 @@ public class RM {
 
     releaseVmBlocks();
     currentVM.setOn(false);
-    setFileFoundState();
+    fileFound = false;
     currentVM = null;
   }
 
   public void setFileFoundState() {
-    fileFound = !fileFound;
+    fileFound = true;
   }
 
   public static String geHDD() {
@@ -86,8 +86,7 @@ public class RM {
   }
 
   // Helper function to get user input
-  private int getUserOption(String[] options) {
-    Scanner scanner = new Scanner(System.in);
+  private int getUserOption(String[] options, Scanner scanner) {
     for (String option : options) {
       System.out.println(option);
     }
@@ -96,6 +95,7 @@ public class RM {
       if (scanner.hasNextInt()) {
         int choice = scanner.nextInt();
         if (choice >= 1 && choice <= options.length) {
+          scanner.nextLine();
           return choice;
         }
       } else {
@@ -112,7 +112,7 @@ public class RM {
     Scanner scanner = new Scanner(System.in);
     String fileName = "";
 
-    int userOption = getUserOption(mainOptions);
+    int userOption = getUserOption(mainOptions, scanner);
     switch (userOption) {
       case 1:
         System.out.print("Enter file name: ");
@@ -166,6 +166,7 @@ public class RM {
   }
 
   public void loadToSupervisor(String fileName) {
+    fileFound = false;
     channelDevice.setFN(fileName.toCharArray());
     channelDevice.setST('3');
     channelDevice.setDT('2');
@@ -299,95 +300,112 @@ public class RM {
     cpu.setR1(temp);
   }
 
-  public void addX() {
-    int R0 = Mapper.toInt(new String(cpu.getR0()));
-    int R1 = Mapper.toInt(new String(cpu.getR1()));
-    int result = R0 + R1;
-    if (result == 0) {
-      cpu.setSF(0, '1');
-    } else {
-      cpu.setSF(0, '0');
+  private int[] readRegisters() {
+    try {
+      return new int[] {
+        Mapper.toInt(new String(cpu.getR0())), Mapper.toInt(new String(cpu.getR1()))
+      };
+    } catch (IllegalArgumentException e) {
+      setPI('3');
+      return null;
     }
-    if (result >= 0) {
-      cpu.setSF(1, '0');
-    } else {
-      cpu.setSF(1, '1');
+  }
+
+  private void arithmetics(boolean add) {
+    int[] registers = readRegisters();
+    if (registers == null) {
+      return;
     }
-    if (result > Config.max_number_in_register || result < Config.min_number_in_register) {
-      cpu.setSF(3, '1');
-    } else {
-      cpu.setSF(3, '0');
+
+    int result = add ? registers[0] + registers[1] : registers[0] - registers[1];
+    boolean overflow =
+        result > Config.max_number_in_register || result < Config.min_number_in_register;
+    if (overflow) {
+      int range = Config.max_number_in_register - Config.min_number_in_register + 1;
+      result =
+          Math.floorMod(result - Config.min_number_in_register, range)
+              + Config.min_number_in_register;
     }
+
+    cpu.setSF(0, result == 0 ? '1' : '0');
+    cpu.setSF(1, result < 0 ? '1' : '0');
+    cpu.setSF(3, overflow ? '1' : '0');
     cpu.setR0(Mapper.toHex(result).toCharArray());
+  }
+
+  private boolean isHexDigit(char value) {
+    return Character.digit(value, 16) >= 0;
+  }
+
+  private boolean jumpIsInRange(char x, char y) {
+    int dx = Character.digit(x, 16);
+    int dy = Character.digit(y, 16);
+    if (dx < 0 || dy < 0 || dy >= Config.block_size) {
+      setPI('1');
+      return false;
+    }
+    return true;
+  }
+
+  public void addX() {
+    arithmetics(true);
   }
 
   public void subX() {
-    int R0 = Mapper.toInt(new String(cpu.getR0()));
-    int R1 = Mapper.toInt(new String(cpu.getR1()));
-    int result = R0 - R1;
-    if (result == 0) {
-      cpu.setSF(0, '1'); // zero-flag
-    } else {
-      cpu.setSF(0, '0');
-    }
-    if (result >= 0) {
-      cpu.setSF(1, '0'); // sign-flag
-    } else {
-      cpu.setSF(1, '1');
-    }
-    if (result > Config.max_number_in_register || result < Config.min_number_in_register) {
-      cpu.setSF(3, '1'); // overflow-flag
-    } else {
-      cpu.setSF(3, '0');
-    }
-    cpu.setR0(Mapper.toHex(result).toCharArray());
+    arithmetics(false);
   }
 
   public void cmpX() {
-    int R0 = Mapper.toInt(new String(cpu.getR0()));
-    int R1 = Mapper.toInt(new String(cpu.getR1()));
-
-    if (R0 == R1) {
-      cpu.setSF(0, '1');
-      cpu.setSF(1, '0');
+    int[] registers = readRegisters();
+    if (registers == null) {
+      return;
     }
 
-    if (R0 < R1) {
-      cpu.setSF(0, '0');
-      cpu.setSF(1, '1');
-    }
-
-    if (R0 > R1) {
-      cpu.setSF(0, '0');
-      cpu.setSF(1, '0');
-    }
+    cpu.setSF(0, registers[0] == registers[1] ? '1' : '0');
+    cpu.setSF(1, registers[0] < registers[1] ? '1' : '0');
   }
 
   public void jp(char x, char y) {
+    if (!jumpIsInRange(x, y)) {
+      return;
+    }
     cpu.setIP(new char[] {x, y});
   }
 
   public void je(char x, char y) {
+    if (!jumpIsInRange(x, y)) {
+      return;
+    }
     if (cpu.getSF()[0] == '1') {
       cpu.setIP(new char[] {x, y});
     }
   }
 
   public void jn(char x, char y) {
+    if (!jumpIsInRange(x, y)) {
+      return;
+    }
     if (cpu.getSF()[0] == '0') {
       cpu.setIP(new char[] {x, y});
     }
   }
 
-  // TODO change to jg and jl
-  public void ja(char x, char y) {
-    if (cpu.getSF()[0] == '0' && cpu.getSF()[1] == '0') {
+  public void jg(char x, char y) {
+    if (!jumpIsInRange(x, y)) {
+      return;
+    }
+
+    if (cpu.getSF()[0] == '0' && cpu.getSF()[1] == cpu.getSF()[3]) {
       cpu.setIP(new char[] {x, y});
     }
   }
 
-  public void jb(char x, char y) {
-    if (cpu.getSF()[0] == '0' && cpu.getSF()[1] == '1') {
+  public void jl(char x, char y) {
+    if (!jumpIsInRange(x, y)) {
+      return;
+    }
+
+    if (cpu.getSF()[0] != cpu.getSF()[3]) {
       cpu.setIP(new char[] {x, y});
     }
   }
@@ -396,20 +414,39 @@ public class RM {
     cpu.setSI('1');
   }
 
-  // TODO: check that parameters are valid hex digits, if not set PI = 1.
-  // especially check that length in R1 <= 0xFF, if not set PI = 1
   public void p(char x, char y, char z) {
-    cpu.setSI('2');
+    if (!isHexDigit(x) || !isHexDigit(y) || !isHexDigit(z) || Character.digit(z, 16) > 3) {
+      setPI('1');
+      return;
+    }
+
+    int length;
+    try {
+      length = Mapper.toInt(new String(cpu.getR1()));
+    } catch (IllegalArgumentException e) {
+      setPI('3');
+      return;
+    }
+    if (length < 0 || length > 0xFF) {
+      setPI('3');
+      return;
+    }
+
     InterruptHandler.getInstance().setX(x);
     InterruptHandler.getInstance().setY(y);
     InterruptHandler.getInstance().setZ(z);
     InterruptHandler.getInstance().setB(cpu.getR1());
+    cpu.setSI('2');
   }
 
-  // TODO: check that parameter is from data segment, if not set PI = 1
   public void gon(char x) {
-    cpu.setSI('4');
+    if (!isHexDigit(x)) {
+      setPI('1');
+      return;
+    }
+
     InterruptHandler.getInstance().setX(x);
+    cpu.setSI('4');
   }
 
   public void halt() {
