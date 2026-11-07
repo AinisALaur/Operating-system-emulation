@@ -17,5 +17,6 @@ public class Config {
   public static final int VM_amount = 3;
   public static final int max_number_in_register = 65535;
   public static final int min_number_in_register = -4095;
-  public static final int maxWordIndex = Config.VM_ram_size / Config.ram_word_size;
+  public static final int max_word_index = Config.VM_ram_size / Config.ram_word_size;
+  public static final int parameter_block = 4;
 }

@@ -106,8 +106,32 @@ public class InterruptHandler {
       }
       case '4' -> {
         System.out.println("Supervisor interrupt: GOnx");
-        // @Ainis need to implement starting a new VM, where block x from old VM is the parameter
-        // block for the new VM
+        int sourceBlock =
+            RM.getInstance()
+                    .getVmPointer(Mapper.toInt("" + x) * Config.block_size * Config.ram_word_size)
+                / (Config.block_size * Config.ram_word_size);
+
+        RM.getInstance().turnOffVM();
+        char[] filename = CPU.getInstance().getR1();
+        RM.getInstance().loadToSupervisor(new String(filename));
+        RM.getInstance().createVM();
+        RM.getInstance().loadUserData();
+
+
+
+        int destinationBlock =
+            RM.getInstance()
+                    .getVmPointer(Config.parameter_block * Config.block_size * Config.ram_word_size)
+                / (Config.block_size * Config.ram_word_size);
+
+        String sourceBlockHEX = Mapper.toHex(sourceBlock).substring(2, 4);
+        String destinationBlockHEX = Mapper.toHex(destinationBlock).substring(2, 4);
+
+        ChannelDevice.getInstance().setST('1');
+        ChannelDevice.getInstance().setDT('1');
+        ChannelDevice.getInstance().setSB(sourceBlockHEX.toCharArray());
+        ChannelDevice.getInstance().setDB(destinationBlockHEX.toCharArray());
+        ChannelDevice.getInstance().xchg();
       }
       default -> System.out.println("Supervisor interrupt: Unknown (" + si + ")");
     }
@@ -118,5 +142,6 @@ public class InterruptHandler {
   // TODO: implement full handling (in the next part of the project)
   private void handleTimerInterrupt() {
     System.out.println("Timer interrupt occurred");
+    RM.getInstance().turnOffVM();
   }
 }

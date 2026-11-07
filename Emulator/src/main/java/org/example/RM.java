@@ -57,8 +57,11 @@ public class RM {
   }
 
   private void releaseVmBlocks() {
-    availableBlocks.addAll(blocksInUse);
-    blocksInUse.clear();
+    int count = Math.min(Config.block_size + 1, blocksInUse.size());
+    for (int i = count - 1; i >= 0; --i) {
+      availableBlocks.addFirst(blocksInUse.get(i));
+    }
+    blocksInUse.subList(0, count).clear();
   }
 
   public VM getCurrentVM() {
@@ -174,14 +177,13 @@ public class RM {
     channelDevice.xchg();
   }
 
-  public VM createVM() {
+  public void createVM() {
     if (!fileFound) {
-      return null;
+      return;
     }
     VM vm = new VM();
     RM.getInstance().setIP(new char[] {'5', '0'});
     this.currentVM = vm;
-    return vm;
   }
 
   public void clearRegisters() {

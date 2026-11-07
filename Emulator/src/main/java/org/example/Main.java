@@ -12,23 +12,23 @@ public class Main {
       }
 
       realMachine.loadToSupervisor(fileName);
-      VM vm = realMachine.createVM();
+      realMachine.createVM();
 
-      if (vm == null) {
+      if (realMachine.getCurrentVM() == null) {
         continue;
       }
 
-      vm.loadDataToMemory();
+      realMachine.getCurrentVM().loadDataToMemory();
 
-      while (vm.isOn()) {
+      while (realMachine.getCurrentVM() != null && realMachine.getCurrentVM().isOn()) {
         if (realMachine.getSF()[2] == '1') {
-          vm.getMenu();
+          realMachine.getCurrentVM().getMenu();
         }
-        if (!vm.isOn()) {
+        if (realMachine.getCurrentVM() == null || !realMachine.getCurrentVM().isOn()) {
           break;
         }
-        vm.exec();
-        if (vm.test()) {
+        realMachine.getCurrentVM().exec();
+        if (realMachine.getCurrentVM().test()) {
           InterruptHandler.getInstance().handleInterrupt();
         }
       }
