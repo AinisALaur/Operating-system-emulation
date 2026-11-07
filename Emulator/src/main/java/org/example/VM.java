@@ -230,8 +230,8 @@ public class VM {
       case String op when op.startsWith("JP") -> realMachine.jp(op.charAt(2), op.charAt(3));
       case String op when op.startsWith("JE") -> realMachine.je(op.charAt(2), op.charAt(3));
       case String op when op.startsWith("JN") -> realMachine.jn(op.charAt(2), op.charAt(3));
-      case String op when op.startsWith("JA") -> realMachine.ja(op.charAt(2), op.charAt(3));
-      case String op when op.startsWith("JB") -> realMachine.jb(op.charAt(2), op.charAt(3));
+      case String op when op.startsWith("JG") -> realMachine.jg(op.charAt(2), op.charAt(3));
+      case String op when op.startsWith("JL") -> realMachine.jl(op.charAt(2), op.charAt(3));
       case "GETD" -> {
         realMachine.getD();
         incrementIP();
