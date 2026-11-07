@@ -53,11 +53,6 @@ public class ChannelDevice {
     return db.clone();
   }
 
-  public void setDB(char newDB) {
-    db[0] = '0';
-    db[1] = newDB;
-  }
-
   public void setDB(char[] newDB) {
     if (newDB == null || newDB.length == 0 || newDB.length > db.length) {
       throw new IllegalArgumentException("Invalid DB value");
@@ -118,16 +113,8 @@ public class ChannelDevice {
     bl[1] = newBL[1];
   }
 
-  public char getST() {
-    return st[0];
-  }
-
   public void setST(char newST) {
     st[0] = newST;
-  }
-
-  public char getDT() {
-    return dt[0];
   }
 
   public void setDT(char newDT) {
@@ -143,9 +130,38 @@ public class ChannelDevice {
       moveDiskSupervisor(); // hdd -> supervisor memory
     } else if (st[0] == '4' && dt[0] == '1') {
       moveInputUser(); // input stream -> user memory (actually register R1)
+    } else if (st[0] == '1' && dt[0] == '1') { // user memory -> user memory
+      moveUserToUser();
     } else {
       throw new IllegalArgumentException(
           "Invalid source and destination object pairs: ST = " + st[0] + ", DT = " + dt[0]);
+    }
+  }
+
+  // Copies a whole block inside user memory. SB and DB are REAL block numbers
+  // (the supervisor translates virtual -> real through each VM's PTR before calling XCHG).
+  private void moveUserToUser() {
+    RAM ram = RAM.getInstance();
+    int blockBytes = Config.block_size * Config.ram_word_size;
+    setBL(
+        String.format("%02X", blockBytes)
+            .toCharArray()); // whole block: 16 words * 4 bytes = 64 (0x40)
+
+    int sourceBlock = Mapper.toInt(new String(getSB()));
+    int destinationBlock = Mapper.toInt(new String(getDB()));
+    if (sourceBlock < 0
+        || sourceBlock >= Config.user_block_amount
+        || destinationBlock < 0
+        || destinationBlock >= Config.user_block_amount) {
+      throw new IndexOutOfBoundsException(
+          "User block out of range: SB = " + sourceBlock + ", DB = " + destinationBlock);
+    }
+
+    int sourcePointer = sourceBlock * blockBytes;
+    int destinationPointer = destinationBlock * blockBytes;
+    int length = Mapper.toInt(new String(getBL()));
+    for (int i = 0; i < length; i += Config.ram_word_size) {
+      ram.writeWordAt(destinationPointer + i, ram.readWordAt(sourcePointer + i));
     }
   }
 
