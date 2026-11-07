@@ -117,8 +117,6 @@ public class InterruptHandler {
         RM.getInstance().createVM();
         RM.getInstance().loadUserData();
 
-
-
         int destinationBlock =
             RM.getInstance()
                     .getVmPointer(Config.parameter_block * Config.block_size * Config.ram_word_size)
