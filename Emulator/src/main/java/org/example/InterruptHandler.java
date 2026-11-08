@@ -74,7 +74,6 @@ public class InterruptHandler {
     RM.getInstance().turnOffVM(); // don't need to reset PI = 0 because we are turning off the VM
   }
 
-  // TODO: implement full handling
   private void handleSupervisorInterrupt(char si) {
     switch (si) {
       case '1' -> {
