@@ -182,7 +182,8 @@ public class RM {
       return;
     }
     VM vm = new VM();
-    RM.getInstance().setIP(new char[] {'5', '0'});
+    setIP(new char[] {'5', '0'});
+    CPU.getInstance().setTI('F');
     this.currentVM = vm;
   }
 
@@ -269,7 +270,7 @@ public class RM {
   public void ld(char x, char y) {
     int virtualBlock = Character.digit(x, 16);
     int virtualWord = Character.digit(y, 16);
-    if (virtualBlock < 0 || virtualWord < 0 || virtualWord >= Config.block_size) {
+    if (virtualBlock < 0 || virtualBlock >= Config.vm_block_amount || virtualWord < 0 || virtualWord >= Config.block_size) {
       setPI('1');
       return;
     }
@@ -284,7 +285,7 @@ public class RM {
   public void st(char x, char y) {
     int virtualBlock = Character.digit(x, 16);
     int virtualWord = Character.digit(y, 16);
-    if (virtualBlock < 0 || virtualWord < 0 || virtualWord >= Config.block_size) {
+    if (virtualBlock < 0 || virtualBlock >= Config.vm_block_amount  || virtualWord < 0 || virtualWord >= Config.block_size) {
       setPI('1');
       return;
     }
@@ -335,14 +336,10 @@ public class RM {
     cpu.setR0(Mapper.toHex(result).toCharArray());
   }
 
-  private boolean isHexDigit(char value) {
-    return Character.digit(value, 16) >= 0;
-  }
-
   private boolean jumpIsInRange(char x, char y) {
     int dx = Character.digit(x, 16);
     int dy = Character.digit(y, 16);
-    if (dx < 0 || dy < 0 || dy >= Config.block_size) {
+    if (dx < 0 || dx >= Config.vm_block_amount || dy < 0 || dy >= Config.block_size) {
       setPI('1');
       return false;
     }
@@ -417,7 +414,10 @@ public class RM {
   }
 
   public void p(char x, char y, char z) {
-    if (!isHexDigit(x) || !isHexDigit(y) || !isHexDigit(z) || Character.digit(z, 16) > 3) {
+    int dx = Character.digit(x, 16);
+    int dy = Character.digit(y, 16);
+    int dz = Character.digit(z, 16);
+    if (dx < 0 || dx >= Config.vm_block_amount || dy < 0 || dy >= Config.block_size || dz < 0 || dz >= Config.ram_word_size) {
       setPI('1');
       return;
     }
@@ -442,7 +442,8 @@ public class RM {
   }
 
   public void gon(char x) {
-    if (!isHexDigit(x)) {
+    int dx = Character.digit(x, 16);
+    if (dx < 0 || dx >= Config.code_segment_block) {
       setPI('1');
       return;
     }

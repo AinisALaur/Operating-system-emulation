@@ -1,0 +1,13 @@
+BJRZjktWTBmLaN2a11X8VUtRncNQp1ki0wAl9XxBT00=
+src/main/java/org/example/CPU.java 2026-11-07T15:34:04.375144407Z
+src/main/java/org/example/ChannelDevice.java 2026-11-07T18:27:09.728395542Z
+src/main/java/org/example/Config.java 2026-11-07T18:27:09.728631207Z
+src/main/java/org/example/InterruptHandler.java 2026-11-07T19:01:29.309291932Z
+src/main/java/org/example/Main.java 2026-11-07T18:27:09.729303661Z
+src/main/java/org/example/Mapper.java 2026-11-07T15:34:04.376563558Z
+src/main/java/org/example/RAM.java 2026-11-07T15:34:04.377198010Z
+src/main/java/org/example/RM.java 2026-11-07T18:59:22.455386121Z
+src/main/java/org/example/VM.java 2026-11-07T18:54:55.762239461Z
+src/test/java/HddFormatTest.java 2026-11-07T15:34:04.378248707Z
+src/test/java/MapperTest.java 2026-11-07T15:34:04.378719744Z
+src/test/java/VMTest.java 2026-11-07T15:34:04.379054657Z
