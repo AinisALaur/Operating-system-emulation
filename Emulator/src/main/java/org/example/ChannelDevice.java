@@ -18,12 +18,21 @@ public class ChannelDevice {
   private char[] bl = new char[2]; // byte length (number of bytes sent)
   private char[] st = new char[1]; // source object number
   private char[] dt = new char[1]; // destination object number
+  private char[] r2 = {'0', '0', '0', '0'};
 
   public static ChannelDevice getInstance() {
     if (instance == null) {
       instance = new ChannelDevice();
     }
     return instance;
+  }
+
+  public char[] getR2() {
+    return r2.clone();
+  }
+
+  public void setR2(char[] newR1) {
+    r2 = newR1;
   }
 
   public char[] getSB() {
@@ -370,7 +379,7 @@ public class ChannelDevice {
       String input = scanner.nextLine().trim();
       try {
         int number = Integer.parseInt(input);
-        CPU.getInstance().setR1(Mapper.toHex(number).toCharArray());
+        setR2(Mapper.toHex(number).toCharArray());
         return;
       } catch (IllegalArgumentException e) {
         System.out.println("Invalid number, try again.");
