@@ -81,6 +81,7 @@ public class InterruptHandler {
         ChannelDevice.getInstance().setST('4');
         ChannelDevice.getInstance().setDT('1');
         ChannelDevice.getInstance().xchg();
+        CPU.getInstance().setR1(ChannelDevice.getInstance().getR2());
       }
       case '2' -> {
         System.out.println("Supervisor interrupt: Output operation");
